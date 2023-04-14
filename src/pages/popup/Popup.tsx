@@ -1,18 +1,23 @@
+import { createSignal } from "solid-js";
+import Navigation from "./components/Navigation";
+import JoinScreen from "./screens/Join";
+import { Dynamic } from "solid-js/web";
+import CreateScreen from "./screens/Create";
+
+export type Screens = keyof typeof screens;
+
+const screens = {
+  join: JoinScreen,
+  create: CreateScreen,
+}
+
 const Popup = () => {
+  const [screen, setScreen] = createSignal<Screens>("join");
+
   return (
-    <div>
-      <header>
-        <p class="font-bold">
-          Edit <code>src/pages/popup/Popup.tsx</code> and save to reload.
-        </p>
-        <a
-          href="https://github.com/solidjs/solid"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn Solid
-        </a>
-      </header>
+    <div class="w-[400px]">
+      <Navigation currentScreen={screen()} changeScreen={setScreen}/>
+      <Dynamic component={screens[screen()]} />
     </div>
   );
 };
