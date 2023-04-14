@@ -1,11 +1,8 @@
-import "@src/styles/index.css";
-import styles from "./App.module.css";
-
 const App = () => {
   return (
-    <div class="fixed right-5 top-20 z-[2000] w-80 rounded-xl bg-white">
-      <div class={styles.App}>
-        <header class={styles.header}>
+    <div class="fixed right-5 top-20 z-[2000] w-80 rounded-xl">
+      <div>
+        <header>
           <p class="flex flex-wrap font-bold">
             Edit <code>src/pages/content/index.tsx</code> and save to reload.
           </p>
