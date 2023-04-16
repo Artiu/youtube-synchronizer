@@ -1,9 +1,15 @@
-let video: HTMLVideoElement = document.querySelector(".video-stream");
+const getPlayingVideo = () => {
+    return [...document.querySelectorAll(".video-stream")].filter(
+        (el: HTMLVideoElement) => el.src
+    )[0] as HTMLVideoElement;
+};
 
-window.addEventListener("yt-navigate-start", () => {
-    console.log("New url:", location.href);
+let video: HTMLVideoElement = getPlayingVideo();
+
+window.addEventListener("yt-navigate-start", (e: any) => {
+    console.log("New url:", e.detail.url);
     cleanupListenersOnVideo();
-    video = document.querySelector(".video-stream");
+    video = getPlayingVideo();
     setupListenersOnVideo();
 });
 
