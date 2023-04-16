@@ -30,7 +30,7 @@ const manifest = defineManifest(async () => ({
     web_accessible_resources: [
         {
             resources: ["assets/js/*.js", "assets/css/*.css", "assets/img/*"],
-            matches: ["*://*/*"],
+            matches: ["https://*.youtube.com/*"],
         },
     ],
     permissions: ["tabs", "clipboardRead", "clipboardWrite"],
