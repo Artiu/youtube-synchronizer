@@ -1,52 +1,52 @@
-const getPlayingVideo = () => {
-    return [...document.querySelectorAll(".video-stream")].filter(
-        (el: HTMLVideoElement) => el.src
-    )[0] as HTMLVideoElement;
-};
+import { setCurrentTimeInVideo } from "./receiver";
+import {
+    startClient,
+    stopClient,
+    playVideo,
+    pauseVideo,
+    changeUrl,
+    changePlaybackRate,
+} from "./receiver";
+import { startSharing, stopSharing } from "./share";
 
-let video: HTMLVideoElement = getPlayingVideo();
+chrome.runtime.onConnect.addListener((port) => {
+    port.onMessage.addListener((msg) => {
+        const messagesActions = {
+            startSharing: () => startSharing(port.postMessage),
+            stopSharing,
+            startClient,
+            stopClient,
+        };
 
-window.addEventListener("yt-navigate-start", (e: any) => {
-    console.log("New url:", e.detail.url);
-    cleanupListenersOnVideo();
-    video = getPlayingVideo();
-    setupListenersOnVideo();
+        if (typeof msg === "string") {
+            messagesActions[msg]();
+            return;
+        }
+
+        if (msg.type === "start-playing") {
+            playVideo();
+            setCurrentTimeInVideo(msg.time);
+            return;
+        }
+        if (msg.type === "pause") {
+            pauseVideo();
+            setCurrentTimeInVideo(msg.time);
+            return;
+        }
+        if (msg.type === "newUrl") {
+            changeUrl(msg.url);
+            return;
+        }
+        if (msg.type === "rate-change") {
+            changePlaybackRate(msg.playbackRate);
+            return;
+        }
+        if (msg.type === "time") {
+            setCurrentTimeInVideo(msg.time);
+        }
+    });
+    port.onDisconnect.addListener(() => {
+        stopSharing();
+        stopClient();
+    });
 });
-
-const pauseEvent = () => {
-    console.log("Paused");
-};
-
-const playingEvent = () => {
-    console.log("Playing");
-};
-
-const rateChangeEvent = () => {
-    console.log("Rate changed to: ", video.playbackRate);
-};
-
-let intervalId: NodeJS.Timer;
-
-const setupListenersOnVideo = () => {
-    if (!video) return;
-    video.addEventListener("pause", pauseEvent);
-    video.addEventListener("waiting", pauseEvent);
-    video.addEventListener("playing", playingEvent);
-    video.addEventListener("ratechange", rateChangeEvent);
-
-    intervalId = setInterval(() => {
-        if (video.paused) return;
-        console.log("Current time: ", video.currentTime);
-    }, 3000);
-};
-
-const cleanupListenersOnVideo = () => {
-    if (!video) return;
-    video.removeEventListener("pause", pauseEvent);
-    video.removeEventListener("waiting", pauseEvent);
-    video.removeEventListener("playing", playingEvent);
-    video.removeEventListener("ratechange", rateChangeEvent);
-    clearInterval(intervalId);
-};
-
-setupListenersOnVideo();
