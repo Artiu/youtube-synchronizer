@@ -1,4 +1,5 @@
-import { For, createSignal } from "solid-js";
+import { For, Show, createSignal } from "solid-js";
+import { joinCode } from "../store";
 
 export default function CreateScreen() {
     const [ytTabs, setYtTabs] = createSignal<chrome.tabs.Tab[]>([]);
@@ -7,24 +8,25 @@ export default function CreateScreen() {
         setYtTabs(tabs);
     });
 
-    const [code, setCode] = createSignal("");
-
     const copyCode = async () => {
-        await navigator.clipboard.writeText(code());
+        await navigator.clipboard.writeText(joinCode());
     };
 
     const [selectedTabId, setSelectedTabId] = createSignal<number>(null);
     const selectTab = (tabId: number) => {
         setSelectedTabId(tabId);
+        chrome.runtime.sendMessage({ type: "startSharing", tabId });
     };
 
     return (
         <>
-            <p class="text-lg">Code:</p>
-            <p class="text-2xl font-bold">{code()}</p>
-            <button class="btn btn-primary btn-sm" onClick={copyCode}>
-                Copy
-            </button>
+            <Show when={joinCode()}>
+                <p class="text-lg">Code:</p>
+                <p class="text-2xl font-bold">{joinCode()}</p>
+                <button class="btn btn-primary btn-sm" onClick={copyCode}>
+                    Copy
+                </button>
+            </Show>
             <h1 class="text-2xl font-bold">Choose tab to share: </h1>
             <div class="grid grid-cols-[1fr_max-content] gap-x-3 gap-y-1 items-center">
                 <For each={ytTabs()}>

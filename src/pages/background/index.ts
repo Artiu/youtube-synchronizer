@@ -1,4 +1,4 @@
-import { BACKEND_URL } from "@src/config";
+import { BACKEND_URL, WEBSOCKET_URL } from "@src/config";
 
 let tabId: number;
 let clientType: "receiver" | "sender";
@@ -30,7 +30,7 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
             sendResponse({ tabId, clientType, joinCode });
             break;
         case "startSharing":
-            ws = new WebSocket(BACKEND_URL);
+            ws = new WebSocket(WEBSOCKET_URL + "/ws");
             ws.addEventListener("message", (msg) => {
                 chrome.runtime.sendMessage(msg);
             });
@@ -43,7 +43,8 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
             connection.postMessage("startSharing");
             break;
         case "startReceiving":
-            sse = new EventSource(BACKEND_URL);
+            joinCode = message.joinCode;
+            sse = new EventSource(BACKEND_URL + "/room/" + joinCode);
             tabId = message.tabId;
             clientType = "receiver";
             connection = chrome.tabs.connect(tabId);
@@ -52,8 +53,7 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
                 connection.postMessage(JSON.parse(ev.data));
             });
             break;
-        case "stopSharing":
-        case "stopReceiving":
+        case "stop":
             reset();
             break;
     }

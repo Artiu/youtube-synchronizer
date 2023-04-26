@@ -23,6 +23,17 @@ chrome.runtime.onConnect.addListener((port) => {
             return;
         }
 
+        if (msg.type === "sync") {
+            if (msg.isPaused) {
+                pauseVideo();
+            } else {
+                playVideo();
+            }
+            setCurrentTimeInVideo(msg.time);
+            changeUrl(msg.path);
+            changePlaybackRate(msg.rate);
+        }
+
         if (msg.type === "start-playing") {
             playVideo();
             setCurrentTimeInVideo(msg.time);
@@ -33,16 +44,13 @@ chrome.runtime.onConnect.addListener((port) => {
             setCurrentTimeInVideo(msg.time);
             return;
         }
-        if (msg.type === "newUrl") {
-            changeUrl(msg.url);
+        if (msg.type === "path-change") {
+            changeUrl(msg.path);
             return;
         }
         if (msg.type === "rate-change") {
-            changePlaybackRate(msg.playbackRate);
+            changePlaybackRate(msg.rate);
             return;
-        }
-        if (msg.type === "time") {
-            setCurrentTimeInVideo(msg.time);
         }
     });
     port.onDisconnect.addListener(() => {

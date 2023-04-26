@@ -5,18 +5,15 @@ let sendFunction: (message: any) => void;
 let video: HTMLVideoElement;
 
 const pauseEvent = () => {
-    console.log("Paused");
     sendFunction({ type: "pause", time: video.currentTime });
 };
 
 const playingEvent = () => {
-    console.log("Playing");
     sendFunction({ type: "start-playing", time: video.currentTime });
 };
 
 const rateChangeEvent = () => {
-    console.log("Rate changed to: ", video.playbackRate);
-    sendFunction({ type: "rate-change", playbackRate: video.playbackRate });
+    sendFunction({ type: "rate-change", rate: video.playbackRate });
 };
 
 let intervalId: NodeJS.Timer;
@@ -29,9 +26,13 @@ const setupListenersOnVideo = () => {
     video.addEventListener("ratechange", rateChangeEvent);
 
     intervalId = setInterval(() => {
-        if (video.paused) return;
-        console.log("Current time: ", video.currentTime);
-        sendFunction({ type: "time", time: video.currentTime });
+        sendFunction({
+            type: "sync",
+            time: video.currentTime,
+            isPaused: video.paused,
+            path: location.href.split("youtube.com")[1],
+            rate: video.playbackRate,
+        });
     }, 3000);
 };
 
@@ -45,8 +46,7 @@ const cleanupListenersOnVideo = () => {
 };
 
 const onPageChange = (e: any) => {
-    console.log("New url:", e.detail.url);
-    sendFunction({ type: "newUrl", url: e.detail.url });
+    sendFunction({ type: "path-change", path: e.detail.url });
     cleanupListenersOnVideo();
     video = getPlayingVideo();
     setupListenersOnVideo();

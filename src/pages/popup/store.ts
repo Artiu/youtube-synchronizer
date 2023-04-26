@@ -20,3 +20,12 @@ const init = async () => {
     setClientType(data.clientType);
 };
 init();
+
+const stop = () => {
+    setTabId(null);
+    setJoinCode(null);
+    setClientType(null);
+    chrome.runtime.sendMessage({ type: "stop" });
+};
+
+export { tabId, updateTabId, joinCode, clientType, stop };
