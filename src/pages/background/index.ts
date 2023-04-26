@@ -1,3 +1,5 @@
+import { BACKEND_URL } from "@src/config";
+
 let tabId: number;
 let clientType: "receiver" | "sender";
 let joinCode: string;
@@ -25,10 +27,13 @@ chrome.tabs.onRemoved.addListener((closedTabId) => {
 chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
     switch (message.type) {
         case "initialPopupData":
-            sendResponse({ clientType, joinCode });
+            sendResponse({ tabId, clientType, joinCode });
             break;
         case "startSharing":
-            ws = new WebSocket("");
+            ws = new WebSocket(BACKEND_URL);
+            ws.addEventListener("message", (msg) => {
+                chrome.runtime.sendMessage(msg);
+            });
             tabId = message.tabId;
             clientType = "sender";
             connection = chrome.tabs.connect(tabId);
@@ -38,7 +43,7 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
             connection.postMessage("startSharing");
             break;
         case "startReceiving":
-            sse = new EventSource("");
+            sse = new EventSource(BACKEND_URL);
             tabId = message.tabId;
             clientType = "receiver";
             connection = chrome.tabs.connect(tabId);

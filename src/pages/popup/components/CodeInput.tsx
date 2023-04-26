@@ -40,17 +40,26 @@ export default function CodeInput(props: CodeInputProps) {
         }
     };
 
-    const getCodeFromClipboard = async () => {
+    const changeText = (newText: string) => {
+        inputs.forEach((input, index) => {
+            input.value = newText[index] || "";
+        });
+        props.updateCode(getCode());
+    };
+
+    const onPaste = (e: ClipboardEvent) => {
+        e.preventDefault();
+        const content = e.clipboardData.getData("Text");
+        changeText(content);
+    };
+
+    const getCodeFromClipboard = () => {
         const el = document.createElement("input");
         document.body.appendChild(el);
         el.focus();
         document.execCommand("paste");
-        const content = el.value;
+        changeText(el.value);
         document.body.removeChild(el);
-        inputs.forEach((input, index) => {
-            input.value = content[index] || "";
-        });
-        props.updateCode(getCode());
     };
 
     return (
@@ -63,6 +72,7 @@ export default function CodeInput(props: CodeInputProps) {
                             ref={(el) => inputs.push(el)}
                             onBeforeInput={onBeforeInput(index())}
                             onInput={onInput(index())}
+                            onPaste={onPaste}
                         />
                     )}
                 </For>

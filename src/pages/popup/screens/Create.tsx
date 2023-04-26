@@ -7,26 +7,16 @@ export default function CreateScreen() {
         setYtTabs(tabs);
     });
 
-    const [code, setCode] = createSignal("test");
+    const [code, setCode] = createSignal("");
 
     const copyCode = async () => {
         await navigator.clipboard.writeText(code());
     };
 
     const [selectedTabId, setSelectedTabId] = createSignal<number>(null);
-
     const selectTab = (tabId: number) => {
         setSelectedTabId(tabId);
     };
-
-    const [remainingCodeLifetime, setRemainingCodeLifetime] = createSignal(120);
-    const intervalId = setInterval(() => {
-        if (remainingCodeLifetime() < 1) {
-            clearInterval(intervalId);
-            return;
-        }
-        setRemainingCodeLifetime(remainingCodeLifetime() - 1);
-    }, 1000);
 
     return (
         <>
@@ -35,12 +25,6 @@ export default function CreateScreen() {
             <button class="btn btn-primary btn-sm" onClick={copyCode}>
                 Copy
             </button>
-            <p>{remainingCodeLifetime()}s</p>
-            <progress
-                class="progress progress-primary"
-                value={remainingCodeLifetime()}
-                max={120}
-            ></progress>
             <h1 class="text-2xl font-bold">Choose tab to share: </h1>
             <div class="grid grid-cols-[1fr_max-content] gap-x-3 gap-y-1 items-center">
                 <For each={ytTabs()}>
