@@ -1,19 +1,19 @@
 import { getPlayingVideo } from "./utils";
 
-let sendFunction: (message: any) => void;
+let backgroundScript: chrome.runtime.Port;
 
 let video: HTMLVideoElement;
 
 const pauseEvent = () => {
-    sendFunction({ type: "pause", time: video.currentTime });
+    backgroundScript.postMessage({ type: "pause", time: video.currentTime });
 };
 
 const playingEvent = () => {
-    sendFunction({ type: "start-playing", time: video.currentTime });
+    backgroundScript.postMessage({ type: "start-playing", time: video.currentTime });
 };
 
 const rateChangeEvent = () => {
-    sendFunction({ type: "rate-change", rate: video.playbackRate });
+    backgroundScript.postMessage({ type: "rate-change", rate: video.playbackRate });
 };
 
 let intervalId: NodeJS.Timer;
@@ -26,7 +26,7 @@ const setupListenersOnVideo = () => {
     video.addEventListener("ratechange", rateChangeEvent);
 
     intervalId = setInterval(() => {
-        sendFunction({
+        backgroundScript.postMessage({
             type: "sync",
             time: video.currentTime,
             isPaused: video.paused,
@@ -46,14 +46,14 @@ const cleanupListenersOnVideo = () => {
 };
 
 const onPageChange = (e: any) => {
-    sendFunction({ type: "path-change", path: e.detail.url });
+    backgroundScript.postMessage({ type: "path-change", path: e.detail.url });
     cleanupListenersOnVideo();
     video = getPlayingVideo();
     setupListenersOnVideo();
 };
 
-export const startSharing = (sendFunc: (msg: any) => void) => {
-    sendFunction = sendFunc;
+export const startSharing = (bs: chrome.runtime.Port) => {
+    backgroundScript = bs;
     video = getPlayingVideo();
     setupListenersOnVideo();
     window.addEventListener("yt-navigate-start", onPageChange);
@@ -62,6 +62,6 @@ export const startSharing = (sendFunc: (msg: any) => void) => {
 export const stopSharing = () => {
     cleanupListenersOnVideo();
     video = null;
-    sendFunction = null;
+    backgroundScript = null;
     window.removeEventListener("yt-navigate-start", onPageChange);
 };

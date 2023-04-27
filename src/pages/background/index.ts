@@ -32,7 +32,7 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
         case "startSharing":
             ws = new WebSocket(WEBSOCKET_URL + "/ws");
             ws.addEventListener("message", (msg) => {
-                chrome.runtime.sendMessage(msg);
+                chrome.runtime.sendMessage(JSON.parse(msg.data));
             });
             tabId = message.tabId;
             clientType = "sender";

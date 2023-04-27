@@ -10,6 +10,7 @@ const updateTabId = (newTabId: number) => {
 
 chrome.runtime.onMessage.addListener((msg: any) => {
     if (!msg.code) return;
+    console.log(msg);
     setJoinCode(msg.code);
 });
 

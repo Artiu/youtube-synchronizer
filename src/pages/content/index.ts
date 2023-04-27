@@ -12,7 +12,7 @@ import { startSharing, stopSharing } from "./share";
 chrome.runtime.onConnect.addListener((port) => {
     port.onMessage.addListener((msg) => {
         const messagesActions = {
-            startSharing: () => startSharing(port.postMessage),
+            startSharing: () => startSharing(port),
             stopSharing,
             startClient,
             stopClient,

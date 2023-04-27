@@ -1,5 +1,5 @@
-import { For, Show, createSignal } from "solid-js";
-import { joinCode } from "../store";
+import { For, Show, createEffect, createSignal } from "solid-js";
+import { joinCode, tabId } from "../store";
 
 export default function CreateScreen() {
     const [ytTabs, setYtTabs] = createSignal<chrome.tabs.Tab[]>([]);
@@ -17,6 +17,10 @@ export default function CreateScreen() {
         setSelectedTabId(tabId);
         chrome.runtime.sendMessage({ type: "startSharing", tabId });
     };
+
+    createEffect(() => {
+        setSelectedTabId(tabId());
+    });
 
     return (
         <>
