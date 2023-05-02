@@ -1,12 +1,30 @@
-import { For, Show, createEffect, createSignal } from "solid-js";
+import { For, Show, createEffect, createSignal, on, onCleanup } from "solid-js";
 import { joinCode, tabId } from "../store";
 
 export default function CreateScreen() {
     const [ytTabs, setYtTabs] = createSignal<chrome.tabs.Tab[]>([]);
+    const [isLoading, setIsLoading] = createSignal(false);
+    const [isError, setIsError] = createSignal(false);
 
     chrome.tabs.query({ url: "https://*.youtube.com/*" }, (tabs) => {
         setYtTabs(tabs);
     });
+
+    const onMessage = (msg: any) => {
+        if (msg.type === "ws-opened") {
+            setIsLoading(false);
+            return;
+        }
+        if (msg.type === "ws-closed") {
+            setIsLoading(false);
+            setSelectedTabId(null);
+            return;
+        }
+    };
+
+    chrome.runtime.onMessage.addListener(onMessage);
+
+    onCleanup(() => chrome.runtime.onMessage.removeListener(onMessage));
 
     const copyCode = async () => {
         await navigator.clipboard.writeText(joinCode());
@@ -14,6 +32,7 @@ export default function CreateScreen() {
 
     const [selectedTabId, setSelectedTabId] = createSignal<number>(null);
     const selectTab = (tabId: number) => {
+        setIsLoading(true);
         setSelectedTabId(tabId);
         chrome.runtime.sendMessage({ type: "startSharing", tabId });
     };
@@ -40,7 +59,10 @@ export default function CreateScreen() {
                             <button
                                 onClick={() => selectTab(item.id)}
                                 class="btn btn-sm btn-primary"
-                                classList={{ "btn-disabled": selectedTabId() === item.id }}
+                                classList={{
+                                    "btn-disabled": selectedTabId() === item.id,
+                                    loading: selectedTabId() === item.id && isLoading(),
+                                }}
                             >
                                 Select
                             </button>

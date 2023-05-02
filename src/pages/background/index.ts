@@ -32,16 +32,23 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
             break;
         case "startSharing":
             ws = new WebSocket(WEBSOCKET_URL + "/ws");
+            ws.addEventListener("open", () => {
+                chrome.runtime.sendMessage({ type: "ws-opened" });
+                tabId = message.tabId;
+                clientType = "sender";
+                connection = chrome.tabs.connect(tabId);
+                connection.onMessage.addListener((message) => {
+                    ws.send(JSON.stringify(message));
+                });
+                connection.postMessage("startSharing");
+            });
             ws.addEventListener("message", (msg) => {
-                chrome.runtime.sendMessage(JSON.parse(msg.data));
+                chrome.runtime.sendMessage({ type: "code", code: JSON.parse(msg.data).code });
             });
-            tabId = message.tabId;
-            clientType = "sender";
-            connection = chrome.tabs.connect(tabId);
-            connection.onMessage.addListener((message) => {
-                ws.send(JSON.stringify(message));
+            ws.addEventListener("close", () => {
+                chrome.runtime.sendMessage({ type: "ws-closed" });
+                reset();
             });
-            connection.postMessage("startSharing");
             break;
         case "startReceiving":
             sse = new EventSource(BACKEND_URL + "/room/" + message.joinCode);
@@ -65,6 +72,9 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
                     return;
                 }
                 connection.postMessage(JSON.parse(ev.data));
+            });
+            sse.addEventListener("error", () => {
+                chrome.runtime.sendMessage({ type: "sse-error", message: "Incorrect code!" });
             });
             break;
         case "stop":
