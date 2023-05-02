@@ -1,7 +1,7 @@
 import { setCurrentTimeInVideo } from "./receiver";
 import {
-    startClient,
-    stopClient,
+    startReceiving,
+    stopReceiving,
     playVideo,
     pauseVideo,
     changeUrl,
@@ -9,13 +9,14 @@ import {
 } from "./receiver";
 import { startSharing, stopSharing } from "./share";
 
+console.log("Loaded extension");
 chrome.runtime.onConnect.addListener((port) => {
+    console.log(port);
     port.onMessage.addListener((msg) => {
+        console.log(msg);
         const messagesActions = {
             startSharing: () => startSharing(port),
-            stopSharing,
-            startClient,
-            stopClient,
+            startReceiving,
         };
 
         if (typeof msg === "string") {
@@ -24,14 +25,18 @@ chrome.runtime.onConnect.addListener((port) => {
         }
 
         if (msg.type === "sync") {
-            if (msg.isPaused) {
-                pauseVideo();
-            } else {
-                playVideo();
-            }
-            setCurrentTimeInVideo(msg.time);
+            console.log("Sync event", msg);
             changeUrl(msg.path);
+            try {
+                if (msg.isPaused) {
+                    pauseVideo();
+                } else {
+                    playVideo();
+                }
+            } catch {}
+            setCurrentTimeInVideo(msg.time);
             changePlaybackRate(msg.rate);
+            return;
         }
 
         if (msg.type === "start-playing") {
@@ -54,7 +59,8 @@ chrome.runtime.onConnect.addListener((port) => {
         }
     });
     port.onDisconnect.addListener(() => {
+        console.log("Disconnected");
         stopSharing();
-        stopClient();
+        stopReceiving();
     });
 });

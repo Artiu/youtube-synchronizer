@@ -3,3 +3,7 @@ export const getPlayingVideo = () => {
         (el: HTMLVideoElement) => el.src
     )[0] as HTMLVideoElement;
 };
+
+export const getYoutubePath = (url: string) => {
+    return url.split("youtube.com")[1];
+};

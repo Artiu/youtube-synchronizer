@@ -1,4 +1,4 @@
-import { getPlayingVideo } from "./utils";
+import { getPlayingVideo, getYoutubePath } from "./utils";
 
 let backgroundScript: chrome.runtime.Port;
 
@@ -30,7 +30,7 @@ const setupListenersOnVideo = () => {
             type: "sync",
             time: video.currentTime,
             isPaused: video.paused,
-            path: location.href.split("youtube.com")[1],
+            path: getYoutubePath(location.href),
             rate: video.playbackRate,
         });
     }, 3000);

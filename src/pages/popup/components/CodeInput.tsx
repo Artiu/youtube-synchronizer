@@ -73,6 +73,7 @@ export default function CodeInput(props: CodeInputProps) {
                             onBeforeInput={onBeforeInput(index())}
                             onInput={onInput(index())}
                             onPaste={onPaste}
+                            autofocus={index() === 0}
                         />
                     )}
                 </For>

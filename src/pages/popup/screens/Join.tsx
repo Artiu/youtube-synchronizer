@@ -7,8 +7,8 @@ export default function JoinScreen() {
         code = newCode;
     };
 
-    const join = () => {
-        chrome.tabs.create({ url: "https://www.youtube.com" });
+    const join = async () => {
+        chrome.runtime.sendMessage({ type: "startReceiving", joinCode: code });
     };
 
     return (

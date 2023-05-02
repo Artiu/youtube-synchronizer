@@ -21,6 +21,7 @@ const reset = () => {
 
 chrome.tabs.onRemoved.addListener((closedTabId) => {
     if (closedTabId !== tabId) return;
+    console.log("Reset from tabs");
     reset();
 });
 
@@ -43,17 +44,31 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
             connection.postMessage("startSharing");
             break;
         case "startReceiving":
-            joinCode = message.joinCode;
-            sse = new EventSource(BACKEND_URL + "/room/" + joinCode);
-            tabId = message.tabId;
-            clientType = "receiver";
-            connection = chrome.tabs.connect(tabId);
-            connection.postMessage("startReceiving");
+            sse = new EventSource(BACKEND_URL + "/room/" + message.joinCode);
+            const connectToTab = () => {
+                connection = chrome.tabs.connect(tabId);
+                connection.onDisconnect.addListener(() => {
+                    connection = null;
+                });
+                connection.postMessage("startReceiving");
+            };
+            sse.addEventListener("open", async () => {
+                const tab = await chrome.tabs.create({ url: "https://www.youtube.com" });
+                joinCode = message.joinCode;
+                tabId = tab.id;
+                clientType = "receiver";
+                connectToTab();
+            });
             sse.addEventListener("message", (ev) => {
+                if (!connection) {
+                    connectToTab();
+                    return;
+                }
                 connection.postMessage(JSON.parse(ev.data));
             });
             break;
         case "stop":
+            console.log("reset from stop");
             reset();
             break;
     }
