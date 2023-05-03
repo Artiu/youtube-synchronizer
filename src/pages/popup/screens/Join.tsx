@@ -7,6 +7,7 @@ export default function JoinScreen() {
     let code = "";
 
     const updateCode = (newCode: string) => {
+        setError(null);
         code = newCode;
     };
 

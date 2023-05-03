@@ -36,6 +36,7 @@ export default function CodeInput(props: CodeInputProps) {
         ) {
             e.preventDefault();
             (e.currentTarget as HTMLInputElement).value = e.data;
+            props.updateCode(getCode());
             focusInput(index + 1);
         }
     };
