@@ -21,7 +21,6 @@ const reset = () => {
 
 chrome.tabs.onRemoved.addListener((closedTabId) => {
     if (closedTabId !== tabId) return;
-    console.log("Reset from tabs");
     reset();
 });
 
@@ -89,7 +88,6 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
             });
             break;
         case "stop":
-            console.log("reset from stop");
             reset();
             break;
     }

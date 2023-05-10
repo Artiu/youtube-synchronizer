@@ -38,7 +38,6 @@ const stripIndex = (fullYtPath: string) => {
 
 export const changeUrl = (path: string) => {
     path = stripIndex(path);
-    console.log(path, stripIndex(getYoutubePath(location.href)));
     if (stripIndex(getYoutubePath(location.href)) === path) return;
     const actualCode = `const logo = document.querySelector("#logo a"); 
     const data = logo.data;

@@ -9,11 +9,8 @@ import {
 } from "./receiver";
 import { startSharing, stopSharing } from "./share";
 
-console.log("Loaded extension");
 chrome.runtime.onConnect.addListener((port) => {
-    console.log(port);
     port.onMessage.addListener((msg) => {
-        console.log(msg);
         const messagesActions = {
             startSharing: () => startSharing(port),
             startReceiving,
@@ -25,7 +22,6 @@ chrome.runtime.onConnect.addListener((port) => {
         }
 
         if (msg.type === "sync") {
-            console.log("Sync event", msg);
             changeUrl(msg.path);
             try {
                 if (msg.isPaused) {
@@ -59,7 +55,6 @@ chrome.runtime.onConnect.addListener((port) => {
         }
     });
     port.onDisconnect.addListener(() => {
-        console.log("Disconnected");
         stopSharing();
         stopReceiving();
     });
