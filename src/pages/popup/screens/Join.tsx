@@ -1,5 +1,6 @@
 import { Show, createSignal, onCleanup } from "solid-js";
 import CodeInput from "../components/CodeInput";
+import { startReceiving } from "../store";
 
 export default function JoinScreen() {
     const [isLoading, setIsLoading] = createSignal(false);
@@ -23,11 +24,11 @@ export default function JoinScreen() {
 
     onCleanup(() => chrome.runtime.onMessage.removeListener(onMessage));
 
-    const join = async () => {
+    const join = () => {
         if (code.length < 6) return;
         setError(null);
         setIsLoading(true);
-        chrome.runtime.sendMessage({ type: "startReceiving", joinCode: code });
+        startReceiving(code);
     };
 
     return (

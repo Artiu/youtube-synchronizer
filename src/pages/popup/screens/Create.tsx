@@ -1,10 +1,9 @@
 import { For, Show, createEffect, createSignal, on, onCleanup } from "solid-js";
-import { joinCode, tabId } from "../store";
+import { joinCode, startStreaming, tabId } from "../store";
 
 export default function CreateScreen() {
     const [ytTabs, setYtTabs] = createSignal<chrome.tabs.Tab[]>([]);
     const [isLoading, setIsLoading] = createSignal(false);
-    const [isError, setIsError] = createSignal(false);
 
     chrome.tabs.query({ url: "https://*.youtube.com/*" }, (tabs) => {
         setYtTabs(tabs);
@@ -34,7 +33,7 @@ export default function CreateScreen() {
     const selectTab = (tabId: number) => {
         setIsLoading(true);
         setSelectedTabId(tabId);
-        chrome.runtime.sendMessage({ type: "startSharing", tabId });
+        startStreaming(tabId);
     };
 
     createEffect(() => {

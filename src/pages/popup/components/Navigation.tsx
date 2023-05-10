@@ -8,6 +8,11 @@ type NavigationProps = {
 };
 
 export default function Navigation(props: NavigationProps) {
+    const changeScreen = (name: Screens) => () => {
+        if (props.locked) return;
+        props.changeScreen(name);
+    };
+
     return (
         <div class="tabs tabs-boxed">
             <button
@@ -16,7 +21,7 @@ export default function Navigation(props: NavigationProps) {
                     "tab-active": props.currentScreen === "join",
                     "tab-disabled": props.locked,
                 }}
-                onClick={!props.locked ? () => props.changeScreen("join") : undefined}
+                onClick={changeScreen("join")}
             >
                 Join
             </button>
@@ -26,7 +31,7 @@ export default function Navigation(props: NavigationProps) {
                     "tab-active": props.currentScreen === "create",
                     "tab-disabled": props.locked,
                 }}
-                onClick={!props.locked ? () => props.changeScreen("create") : undefined}
+                onClick={changeScreen("create")}
             >
                 Create
             </button>

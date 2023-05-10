@@ -3,7 +3,7 @@ import Navigation from "./components/Navigation";
 import JoinScreen from "./screens/Join";
 import { Dynamic } from "solid-js/web";
 import CreateScreen from "./screens/Create";
-import { clientType } from "./store";
+import { clientType, stopStreaming } from "./store";
 
 export type Screens = keyof typeof screens;
 
@@ -24,14 +24,22 @@ const Popup = () => {
         }
     });
 
+    const shouldBeLocked = () => !!clientType();
+
     return (
         <div class="w-[400px]">
-            <Navigation currentScreen={screen()} changeScreen={setScreen} locked={!!clientType()} />
+            <Navigation
+                currentScreen={screen()}
+                changeScreen={setScreen}
+                locked={shouldBeLocked()}
+            />
             <div class="px-5 py-2">
                 <Dynamic component={screens[screen()]} />
             </div>
-            <Show when={!!clientType()}>
-                <button class="btn btn-error">Stop</button>
+            <Show when={clientType()}>
+                <button class="btn btn-error" onClick={stopStreaming}>
+                    Stop
+                </button>
             </Show>
             <a href="https://ko-fi.com/Z8Z0KABI5" target="_blank">
                 <img

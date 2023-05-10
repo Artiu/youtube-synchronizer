@@ -4,14 +4,24 @@ const [tabId, setTabId] = createSignal<number | null>(null);
 const [joinCode, setJoinCode] = createSignal<string | null>(null);
 const [clientType, setClientType] = createSignal<"receiver" | "sender" | null>(null);
 
+const reset = () => {
+    setTabId(null);
+    setJoinCode(null);
+    setClientType(null);
+};
+
 const updateTabId = (newTabId: number) => {
     chrome.runtime.sendMessage({ type: "startReceiving", tabId: newTabId });
 };
 
 chrome.runtime.onMessage.addListener((msg: any) => {
-    if (!msg.code) return;
-    console.log(msg);
-    setJoinCode(msg.code);
+    if (msg.type === "code") {
+        setJoinCode(msg.code);
+        return;
+    }
+    if (msg.type === "ws-closed" || msg.type === "sse-error") {
+        reset();
+    }
 });
 
 const init = async () => {
@@ -22,11 +32,20 @@ const init = async () => {
 };
 init();
 
-const stop = () => {
-    setTabId(null);
-    setJoinCode(null);
-    setClientType(null);
+const startReceiving = (joinCode: string) => {
+    setClientType("receiver");
+    chrome.runtime.sendMessage({ type: "startReceiving", joinCode });
+};
+
+const startStreaming = (tabId: number) => {
+    setClientType("sender");
+    setTabId(tabId);
+    chrome.runtime.sendMessage({ type: "startSharing", tabId });
+};
+
+const stopStreaming = () => {
+    reset();
     chrome.runtime.sendMessage({ type: "stop" });
 };
 
-export { tabId, updateTabId, joinCode, clientType, stop };
+export { tabId, updateTabId, joinCode, clientType, startReceiving, startStreaming, stopStreaming };
