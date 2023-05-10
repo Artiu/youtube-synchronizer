@@ -52,6 +52,15 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
                 reset();
             });
             break;
+        case "changeTab":
+            connection.disconnect();
+            tabId = message.tabId;
+            connection = chrome.tabs.connect(tabId);
+            connection.onMessage.addListener((message) => {
+                ws.send(JSON.stringify(message));
+            });
+            connection.postMessage("startSharing");
+            break;
         case "startReceiving":
             sse = new EventSource(BACKEND_URL + "/room/" + message.joinCode);
             const connectToTab = () => {

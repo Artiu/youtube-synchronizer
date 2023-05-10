@@ -11,7 +11,8 @@ const reset = () => {
 };
 
 const updateTabId = (newTabId: number) => {
-    chrome.runtime.sendMessage({ type: "startReceiving", tabId: newTabId });
+    setTabId(newTabId);
+    chrome.runtime.sendMessage({ type: "changeTab", tabId: newTabId });
 };
 
 chrome.runtime.onMessage.addListener((msg: any) => {

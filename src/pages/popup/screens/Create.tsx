@@ -1,5 +1,5 @@
-import { For, Show, createEffect, createSignal, on, onCleanup } from "solid-js";
-import { joinCode, startStreaming, tabId } from "../store";
+import { For, Show, createEffect, createSignal, onCleanup } from "solid-js";
+import { joinCode, startStreaming, tabId, updateTabId } from "../store";
 
 export default function CreateScreen() {
     const [ytTabs, setYtTabs] = createSignal<chrome.tabs.Tab[]>([]);
@@ -31,9 +31,13 @@ export default function CreateScreen() {
 
     const [selectedTabId, setSelectedTabId] = createSignal<number>(null);
     const selectTab = (tabId: number) => {
-        setIsLoading(true);
+        if (!selectedTabId()) {
+            setIsLoading(true);
+            startStreaming(tabId);
+        } else {
+            updateTabId(tabId);
+        }
         setSelectedTabId(tabId);
-        startStreaming(tabId);
     };
 
     createEffect(() => {
