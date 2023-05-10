@@ -24,7 +24,7 @@ chrome.tabs.onRemoved.addListener((closedTabId) => {
     reset();
 });
 
-chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     switch (message.type) {
         case "initialPopupData":
             sendResponse({ tabId, clientType, joinCode });
@@ -62,30 +62,26 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
             break;
         case "startReceiving":
             sse = new EventSource(BACKEND_URL + "/room/" + message.joinCode);
-            const connectToTab = () => {
-                connection = chrome.tabs.connect(tabId);
-                connection.onDisconnect.addListener(() => {
-                    connection = null;
-                });
-                connection.postMessage("startReceiving");
-            };
             sse.addEventListener("open", async () => {
                 const tab = await chrome.tabs.create({ url: "https://www.youtube.com" });
                 joinCode = message.joinCode;
                 tabId = tab.id;
                 clientType = "receiver";
-                connectToTab();
             });
             sse.addEventListener("message", (ev) => {
-                if (!connection) {
-                    connectToTab();
-                    return;
-                }
-                connection.postMessage(JSON.parse(ev.data));
+                connection?.postMessage(JSON.parse(ev.data));
             });
             sse.addEventListener("error", () => {
                 chrome.runtime.sendMessage({ type: "sse-error", message: "Incorrect code!" });
             });
+            break;
+        case "tabReady":
+            if (sender.tab?.id !== tabId) break;
+            connection = chrome.tabs.connect(tabId);
+            connection.onDisconnect.addListener(() => {
+                connection = null;
+            });
+            connection.postMessage("startReceiving");
             break;
         case "stop":
             reset();

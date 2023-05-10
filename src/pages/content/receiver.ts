@@ -1,14 +1,16 @@
 import { getPlayingVideo, getYoutubePath } from "./utils";
 
-export const playVideo = () => {
+export const playVideo = async () => {
     const video = getPlayingVideo();
-    if (!video.paused) return;
-    video.play();
+    try {
+        await video.play();
+    } catch (err) {
+        console.error(err);
+    }
 };
 
 export const pauseVideo = () => {
     const video = getPlayingVideo();
-    if (video.paused) return;
     video.pause();
 };
 
