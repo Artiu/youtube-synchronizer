@@ -1,4 +1,4 @@
-import { setCurrentTimeInVideo } from "./receiver";
+import { updateCurrentTimeInVideo, setExactTimeInVideo } from "./receiver";
 import {
     startReceiving,
     stopReceiving,
@@ -34,19 +34,19 @@ chrome.runtime.onConnect.addListener((port) => {
                     playVideo();
                 }
             } catch {}
-            setCurrentTimeInVideo(msg.time);
+            updateCurrentTimeInVideo(msg.time);
             changePlaybackRate(msg.rate);
             return;
         }
 
         if (msg.type === "start-playing") {
             playVideo();
-            setCurrentTimeInVideo(msg.time);
+            setExactTimeInVideo(msg.time);
             return;
         }
         if (msg.type === "pause") {
             pauseVideo();
-            setCurrentTimeInVideo(msg.time);
+            setExactTimeInVideo(msg.time);
             return;
         }
         if (msg.type === "path-change") {

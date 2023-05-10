@@ -21,9 +21,13 @@ export const changePlaybackRate = (newPlaybackRate: number) => {
     video.playbackRate = newPlaybackRate;
 };
 
-export const setCurrentTimeInVideo = (newTime: number) => {
+export const setExactTimeInVideo = (newTime: number) => {
     const video = getPlayingVideo();
-    console.log(video.currentTime);
+    video.currentTime = newTime;
+};
+
+export const updateCurrentTimeInVideo = (newTime: number) => {
+    const video = getPlayingVideo();
     if (newTime - video.currentTime < 0.5) return;
     video.currentTime = newTime;
 };
