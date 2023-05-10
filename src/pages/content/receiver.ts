@@ -1,9 +1,5 @@
 import { getPlayingVideo, getYoutubePath } from "./utils";
 
-export const startReceiving = () => {};
-
-export const stopReceiving = () => {};
-
 export const playVideo = () => {
     const video = getPlayingVideo();
     if (!video.paused) return;

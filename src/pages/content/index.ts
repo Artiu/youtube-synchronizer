@@ -1,35 +1,21 @@
 import { updateCurrentTimeInVideo, setExactTimeInVideo } from "./receiver";
-import {
-    startReceiving,
-    stopReceiving,
-    playVideo,
-    pauseVideo,
-    changeUrl,
-    changePlaybackRate,
-} from "./receiver";
+import { playVideo, pauseVideo, changeUrl, changePlaybackRate } from "./receiver";
 import { startSharing, stopSharing } from "./share";
 
 chrome.runtime.onConnect.addListener((port) => {
     port.onMessage.addListener((msg) => {
-        const messagesActions = {
-            startSharing: () => startSharing(port),
-            startReceiving,
-        };
-
-        if (typeof msg === "string") {
-            messagesActions[msg]();
+        if (msg === "startSharing") {
+            startSharing(port);
             return;
         }
 
         if (msg.type === "sync") {
             changeUrl(msg.path);
-            try {
-                if (msg.isPaused) {
-                    pauseVideo();
-                } else {
-                    playVideo();
-                }
-            } catch {}
+            if (msg.isPaused) {
+                pauseVideo();
+            } else {
+                playVideo();
+            }
             updateCurrentTimeInVideo(msg.time);
             changePlaybackRate(msg.rate);
             return;
@@ -56,6 +42,5 @@ chrome.runtime.onConnect.addListener((port) => {
     });
     port.onDisconnect.addListener(() => {
         stopSharing();
-        stopReceiving();
     });
 });
