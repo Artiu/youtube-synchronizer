@@ -1,6 +1,24 @@
 import { Show, createSignal, onCleanup } from "solid-js";
 import CodeInput from "../components/CodeInput";
-import { startReceiving } from "../store";
+import { joinCode, startReceiving } from "../store";
+
+function Joined() {
+    const copy = async () => {
+        await navigator.clipboard.writeText(joinCode());
+    };
+
+    return (
+        <>
+            <p>
+                You are currently connected to session with code{" "}
+                <span class="font-bold">{joinCode()}</span>
+            </p>
+            <button class="btn btn-primary btn-sm" onClick={copy}>
+                Copy
+            </button>
+        </>
+    );
+}
 
 export default function JoinScreen() {
     const [isLoading, setIsLoading] = createSignal(false);
@@ -32,7 +50,7 @@ export default function JoinScreen() {
     };
 
     return (
-        <>
+        <Show when={!joinCode()} fallback={<Joined />}>
             <CodeInput updateCode={updateCode} />
             <Show when={error()}>
                 <p class="text-error">{error()}</p>
@@ -40,6 +58,6 @@ export default function JoinScreen() {
             <button class="btn" classList={{ loading: isLoading() }} onClick={join}>
                 {isLoading() ? "Joining" : "Join"}
             </button>
-        </>
+        </Show>
     );
 }

@@ -11,7 +11,7 @@ const reset = () => {
     tabId = null;
     clientType = null;
     joinCode = null;
-    connection.disconnect();
+    connection?.disconnect();
     connection = null;
     ws?.close();
     ws = null;
@@ -43,7 +43,9 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
                 connection.postMessage("startSharing");
             });
             ws.addEventListener("message", (msg) => {
-                chrome.runtime.sendMessage({ type: "code", code: JSON.parse(msg.data).code });
+                const { code } = JSON.parse(msg.data);
+                joinCode = code;
+                chrome.runtime.sendMessage({ type: "code", code });
             });
             ws.addEventListener("close", () => {
                 chrome.runtime.sendMessage({ type: "ws-closed" });
