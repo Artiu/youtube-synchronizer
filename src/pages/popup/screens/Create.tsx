@@ -47,7 +47,7 @@ export default function CreateScreen() {
     return (
         <>
             <Show when={joinCode()}>
-                <div>
+                <div class="text-center">
                     <p class="text-lg">Code:</p>
                     <p class="text-2xl font-bold">{joinCode()}</p>
                 </div>
