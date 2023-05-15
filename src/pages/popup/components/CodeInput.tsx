@@ -54,15 +54,6 @@ export default function CodeInput(props: CodeInputProps) {
         changeText(content);
     };
 
-    const getCodeFromClipboard = () => {
-        const el = document.createElement("input");
-        document.body.appendChild(el);
-        el.focus();
-        document.execCommand("paste");
-        changeText(el.value);
-        document.body.removeChild(el);
-    };
-
     return (
         <>
             <div class="flex gap-2">
@@ -79,9 +70,6 @@ export default function CodeInput(props: CodeInputProps) {
                     )}
                 </For>
             </div>
-            <button class="btn" onClick={getCodeFromClipboard}>
-                Paste
-            </button>
         </>
     );
 }

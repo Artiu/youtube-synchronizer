@@ -9,10 +9,10 @@ function Joined() {
 
     return (
         <>
-            <p>
-                You are currently connected to session with code{" "}
-                <span class="font-bold">{joinCode()}</span>
-            </p>
+            <div>
+                <p class="text-lg">You are connected to session with code:</p>
+                <p class="text-2xl font-bold text-center">{joinCode()}</p>
+            </div>
             <button class="btn btn-primary btn-sm" onClick={copy}>
                 Copy
             </button>
@@ -51,11 +51,12 @@ export default function JoinScreen() {
 
     return (
         <Show when={!joinCode()} fallback={<Joined />}>
+            <p class="text-2xl font-bold">Enter join code:</p>
             <CodeInput updateCode={updateCode} />
             <Show when={error()}>
-                <p class="text-error">{error()}</p>
+                <p class="text-error text-lg">{error()}</p>
             </Show>
-            <button class="btn" classList={{ loading: isLoading() }} onClick={join}>
+            <button class="btn btn-primary" classList={{ loading: isLoading() }} onClick={join}>
                 {isLoading() ? "Joining" : "Join"}
             </button>
         </Show>

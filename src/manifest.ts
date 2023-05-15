@@ -33,7 +33,7 @@ const manifest = defineManifest(async () => ({
             matches: ["https://*.youtube.com/*"],
         },
     ],
-    permissions: ["tabs", "clipboardRead", "clipboardWrite"],
+    permissions: ["tabs", "clipboardWrite"],
 }));
 
 export default manifest;

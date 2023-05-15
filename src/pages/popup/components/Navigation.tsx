@@ -16,7 +16,7 @@ export default function Navigation(props: NavigationProps) {
     return (
         <div class="tabs tabs-boxed">
             <button
-                class="tab"
+                class="tab w-1/2"
                 classList={{
                     "tab-active": props.currentScreen === "join",
                     "tab-disabled": props.locked,
@@ -26,7 +26,7 @@ export default function Navigation(props: NavigationProps) {
                 Join
             </button>
             <button
-                class="tab"
+                class="tab w-1/2"
                 classList={{
                     "tab-active": props.currentScreen === "create",
                     "tab-disabled": props.locked,
