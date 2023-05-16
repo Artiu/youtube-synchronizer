@@ -35,6 +35,7 @@ export default function CodeInput(props: CodeInputProps) {
             e.inputType !== "deleteContentBackward"
         ) {
             e.preventDefault();
+            if (!e.data) return;
             (e.currentTarget as HTMLInputElement).value = e.data;
             props.updateCode(getCode());
             focusInput(index + 1);
