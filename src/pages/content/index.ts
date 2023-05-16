@@ -3,6 +3,9 @@ import { playVideo, pauseVideo, changeUrl, changePlaybackRate } from "./receiver
 import { startSharing, stopSharing } from "./share";
 
 chrome.runtime.onConnect.addListener((port) => {
+    const sendFunction = (message: any) => {
+        port.postMessage(message);
+    };
     port.onMessage.addListener((msg) => {
         if (msg === "startSharing") {
             startSharing(port);
@@ -10,7 +13,7 @@ chrome.runtime.onConnect.addListener((port) => {
         }
 
         if (msg.type === "sync") {
-            changeUrl(msg.path);
+            changeUrl(msg.path, sendFunction);
             if (msg.isPaused) {
                 pauseVideo();
             } else {
@@ -32,7 +35,7 @@ chrome.runtime.onConnect.addListener((port) => {
             return;
         }
         if (msg.type === "path-change") {
-            changeUrl(msg.path);
+            changeUrl(msg.path, sendFunction);
             return;
         }
         if (msg.type === "rate-change") {

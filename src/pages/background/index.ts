@@ -73,11 +73,34 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             });
             sse.addEventListener("error", () => {
                 chrome.runtime.sendMessage({ type: "sse-error", message: "Incorrect code!" });
+                reset();
             });
             break;
         case "tabReady":
             if (sender.tab?.id !== tabId) break;
             connection = chrome.tabs.connect(tabId);
+            connection.onMessage.addListener((message) => {
+                if (message.type === "changePath") {
+                    chrome.scripting.executeScript({
+                        world: "MAIN",
+                        target: { tabId },
+                        func: (newPath: string) => {
+                            const logo: any = document.querySelector("#logo a");
+                            const data = logo.data;
+                            logo.data = {
+                                commandMetadata: {
+                                    webCommandMetadata: {
+                                        url: newPath,
+                                    },
+                                },
+                            };
+                            logo.click();
+                            logo.data = data;
+                        },
+                        args: [message.path],
+                    });
+                }
+            });
             connection.onDisconnect.addListener(() => {
                 connection = null;
             });

@@ -34,22 +34,8 @@ const stripIndex = (fullYtPath: string) => {
     return fullYtPath.replace(/\&index=\d{1,}/, "");
 };
 
-export const changeUrl = (path: string) => {
+export const changeUrl = (path: string, sendFunction: (message: any) => void) => {
     path = stripIndex(path);
     if (stripIndex(getYoutubePath(location.href)) === path) return;
-    const actualCode = `const logo = document.querySelector("#logo a"); 
-    const data = logo.data;
-    logo.data = {
-        commandMetadata: {
-            webCommandMetadata: {
-                url: "${path}",
-            },
-        },
-    };
-    logo.click();
-    logo.data = data;`;
-
-    document.documentElement.setAttribute("onreset", actualCode);
-    document.documentElement.dispatchEvent(new CustomEvent("reset"));
-    document.documentElement.removeAttribute("onreset");
+    sendFunction({ type: "changePath", path });
 };
