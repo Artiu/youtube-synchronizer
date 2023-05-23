@@ -1,18 +1,21 @@
+import { backgroundScriptActions } from "../background/actions";
+import { ServerMessageEvent } from "../serverMessage";
 import { updateCurrentTimeInVideo, setExactTimeInVideo } from "./receiver";
 import { playVideo, pauseVideo, changeUrl, changePlaybackRate } from "./receiver";
 import { startSharing, stopSharing } from "./share";
+import { ContentScriptEvent, ContentScriptMessage } from "./types";
 
 chrome.runtime.onConnect.addListener((port) => {
     const sendFunction = (message: any) => {
         port.postMessage(message);
     };
-    port.onMessage.addListener((msg) => {
-        if (msg === "startSharing") {
+    port.onMessage.addListener((msg: ContentScriptMessage) => {
+        if (msg.type === ContentScriptEvent.StartSharing) {
             startSharing(port);
             return;
         }
 
-        if (msg.type === "sync") {
+        if (msg.type === ServerMessageEvent.Sync) {
             changeUrl(msg.path, sendFunction);
             if (msg.isPaused) {
                 pauseVideo();
@@ -24,21 +27,21 @@ chrome.runtime.onConnect.addListener((port) => {
             return;
         }
 
-        if (msg.type === "start-playing") {
+        if (msg.type === ServerMessageEvent.StartPlaying) {
             playVideo();
             setExactTimeInVideo(msg.time);
             return;
         }
-        if (msg.type === "pause") {
+        if (msg.type === ServerMessageEvent.Pause) {
             pauseVideo();
             setExactTimeInVideo(msg.time);
             return;
         }
-        if (msg.type === "path-change") {
+        if (msg.type === ServerMessageEvent.PathChange) {
             changeUrl(msg.path, sendFunction);
             return;
         }
-        if (msg.type === "rate-change") {
+        if (msg.type === ServerMessageEvent.RateChange) {
             changePlaybackRate(msg.rate);
             return;
         }
@@ -48,4 +51,4 @@ chrome.runtime.onConnect.addListener((port) => {
     });
 });
 
-chrome.runtime.sendMessage({ type: "tabReady" });
+backgroundScriptActions.tabReady();

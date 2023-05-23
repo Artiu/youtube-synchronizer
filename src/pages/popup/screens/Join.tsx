@@ -1,6 +1,7 @@
 import { Show, createSignal, onCleanup } from "solid-js";
 import CodeInput from "../components/CodeInput";
 import { joinCode, startReceiving } from "../store";
+import { PopupMessage, PopupPageEvent } from "../types";
 
 function Joined() {
     const copy = async () => {
@@ -30,8 +31,8 @@ export default function JoinScreen() {
         code = newCode;
     };
 
-    const onMessage = (msg: any) => {
-        if (msg.type === "sse-error") {
+    const onMessage = (msg: PopupMessage) => {
+        if (msg.type === PopupPageEvent.SseError) {
             setIsLoading(false);
             setError(msg.message);
             return;

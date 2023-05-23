@@ -1,19 +1,27 @@
+import { ServerMessage, ServerMessageEvent, sendServerMessage } from "../serverMessage";
 import { getPlayingVideo, getYoutubePath } from "./utils";
 
 let backgroundScript: chrome.runtime.Port;
 
 let video: HTMLVideoElement;
 
+const sendMessage = (message: ServerMessage) => {
+    sendServerMessage(backgroundScript, message);
+};
+
 const pauseEvent = () => {
-    backgroundScript.postMessage({ type: "pause", time: video.currentTime });
+    sendMessage({
+        type: ServerMessageEvent.Pause,
+        time: video.currentTime,
+    });
 };
 
 const playingEvent = () => {
-    backgroundScript.postMessage({ type: "start-playing", time: video.currentTime });
+    sendMessage({ type: ServerMessageEvent.StartPlaying, time: video.currentTime });
 };
 
 const rateChangeEvent = () => {
-    backgroundScript.postMessage({ type: "rate-change", rate: video.playbackRate });
+    sendMessage({ type: ServerMessageEvent.RateChange, rate: video.playbackRate });
 };
 
 let intervalId: NodeJS.Timer;
@@ -26,8 +34,8 @@ const setupListenersOnVideo = () => {
     video.addEventListener("ratechange", rateChangeEvent);
 
     intervalId = setInterval(() => {
-        backgroundScript.postMessage({
-            type: "sync",
+        sendMessage({
+            type: ServerMessageEvent.Sync,
             time: video.currentTime,
             isPaused: video.paused,
             path: getYoutubePath(location.href),
@@ -46,7 +54,7 @@ const cleanupListenersOnVideo = () => {
 };
 
 const onPageChange = (e: any) => {
-    backgroundScript.postMessage({ type: "path-change", path: e.detail.url });
+    sendMessage({ type: ServerMessageEvent.PathChange, path: e.detail.url });
     cleanupListenersOnVideo();
     video = getPlayingVideo();
     setupListenersOnVideo();

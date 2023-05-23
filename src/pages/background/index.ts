@@ -1,7 +1,11 @@
 import { BACKEND_URL, WEBSOCKET_URL } from "@src/config";
+import { BackgroundScriptEvent, BackgroundScriptMessage, ClientType } from "./types";
+import { popupPageActions } from "../popup/actions";
+import { contentScriptActions } from "../content/actions";
+import { sendServerMessage } from "../serverMessage";
 
 let tabId: number;
-let clientType: "receiver" | "sender";
+let clientType: ClientType;
 let joinCode: string;
 let connection: chrome.runtime.Port;
 let ws: WebSocket;
@@ -24,43 +28,43 @@ chrome.tabs.onRemoved.addListener((closedTabId) => {
     reset();
 });
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message: BackgroundScriptMessage, sender, sendResponse) => {
     switch (message.type) {
-        case "initialPopupData":
+        case BackgroundScriptEvent.InitialPopupData:
             sendResponse({ tabId, clientType, joinCode });
             break;
-        case "startSharing":
+        case BackgroundScriptEvent.StartSharing:
             ws = new WebSocket(WEBSOCKET_URL + "/ws");
             ws.addEventListener("open", () => {
-                chrome.runtime.sendMessage({ type: "ws-opened" });
+                popupPageActions.sendWsOpen();
                 tabId = message.tabId;
                 clientType = "sender";
                 connection = chrome.tabs.connect(tabId);
                 connection.onMessage.addListener((message) => {
                     ws.send(JSON.stringify(message));
                 });
-                connection.postMessage("startSharing");
+                contentScriptActions.startSharing(connection);
             });
             ws.addEventListener("message", (msg) => {
                 const { code } = JSON.parse(msg.data);
                 joinCode = code;
-                chrome.runtime.sendMessage({ type: "code", code });
+                popupPageActions.sendCode(code);
             });
             ws.addEventListener("close", () => {
-                chrome.runtime.sendMessage({ type: "ws-closed" });
+                popupPageActions.sendWsClosed();
                 reset();
             });
             break;
-        case "changeTab":
+        case BackgroundScriptEvent.ChangeTab:
             connection.disconnect();
             tabId = message.tabId;
             connection = chrome.tabs.connect(tabId);
             connection.onMessage.addListener((message) => {
                 ws.send(JSON.stringify(message));
             });
-            connection.postMessage("startSharing");
+            contentScriptActions.startSharing(connection);
             break;
-        case "startReceiving":
+        case BackgroundScriptEvent.StartReceiving:
             sse = new EventSource(BACKEND_URL + "/room/" + message.joinCode);
             sse.addEventListener("open", async () => {
                 const tab = await chrome.tabs.create({ url: "https://www.youtube.com" });
@@ -69,14 +73,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 clientType = "receiver";
             });
             sse.addEventListener("message", (ev) => {
-                connection?.postMessage(JSON.parse(ev.data));
+                sendServerMessage(connection, JSON.parse(ev.data));
             });
             sse.addEventListener("error", () => {
-                chrome.runtime.sendMessage({ type: "sse-error", message: "Incorrect code!" });
+                popupPageActions.sendSseError("Incorrect code!");
                 reset();
             });
             break;
-        case "tabReady":
+        case BackgroundScriptEvent.TabReady:
             if (sender.tab?.id !== tabId) break;
             connection = chrome.tabs.connect(tabId);
             connection.onMessage.addListener((message) => {
@@ -104,9 +108,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             connection.onDisconnect.addListener(() => {
                 connection = null;
             });
-            connection.postMessage("startReceiving");
+            contentScriptActions.startSharing(connection);
             break;
-        case "stop":
+        case BackgroundScriptEvent.Stop:
             reset();
             break;
     }

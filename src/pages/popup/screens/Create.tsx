@@ -1,5 +1,6 @@
 import { For, Show, createEffect, createSignal, onCleanup } from "solid-js";
 import { joinCode, startStreaming, tabId, updateTabId } from "../store";
+import { PopupMessage, PopupPageEvent } from "../types";
 
 export default function CreateScreen() {
     const [ytTabs, setYtTabs] = createSignal<chrome.tabs.Tab[]>([]);
@@ -9,12 +10,12 @@ export default function CreateScreen() {
         setYtTabs(tabs);
     });
 
-    const onMessage = (msg: any) => {
-        if (msg.type === "ws-opened") {
+    const onMessage = (msg: PopupMessage) => {
+        if (msg.type === PopupPageEvent.WsOpen) {
             setIsLoading(false);
             return;
         }
-        if (msg.type === "ws-closed") {
+        if (msg.type === PopupPageEvent.WsClosed) {
             setIsLoading(false);
             setSelectedTabId(null);
             return;
