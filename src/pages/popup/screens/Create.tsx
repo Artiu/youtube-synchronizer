@@ -1,4 +1,4 @@
-import { For, Show, createEffect, createSignal, onCleanup } from "solid-js";
+import { For, Show, createSignal, onCleanup } from "solid-js";
 import { joinCode, startStreaming, tabId, updateTabId } from "../store";
 import { PopupMessage, PopupPageEvent } from "../types";
 
@@ -11,13 +11,8 @@ export default function CreateScreen() {
     });
 
     const onMessage = (msg: PopupMessage) => {
-        if (msg.type === PopupPageEvent.WsOpen) {
+        if (msg.type === PopupPageEvent.WsOpen || msg.type === PopupPageEvent.WsClosed) {
             setIsLoading(false);
-            return;
-        }
-        if (msg.type === PopupPageEvent.WsClosed) {
-            setIsLoading(false);
-            setSelectedTabId(null);
             return;
         }
     };
@@ -30,20 +25,14 @@ export default function CreateScreen() {
         await navigator.clipboard.writeText(joinCode());
     };
 
-    const [selectedTabId, setSelectedTabId] = createSignal<number>(null);
-    const selectTab = (tabId: number) => {
-        if (!selectedTabId()) {
+    const changeTab = (newId: number) => () => {
+        if (tabId() === null) {
             setIsLoading(true);
-            startStreaming(tabId);
+            startStreaming(newId);
         } else {
-            updateTabId(tabId);
+            updateTabId(newId);
         }
-        setSelectedTabId(tabId);
     };
-
-    createEffect(() => {
-        setSelectedTabId(tabId());
-    });
 
     return (
         <>
@@ -63,11 +52,11 @@ export default function CreateScreen() {
                         <>
                             <p class="text-[14px]">{item.title}</p>
                             <button
-                                onClick={() => selectTab(item.id)}
+                                onClick={changeTab(item.id)}
                                 class="btn btn-sm btn-primary"
                                 classList={{
-                                    "btn-disabled": selectedTabId() === item.id,
-                                    loading: selectedTabId() === item.id && isLoading(),
+                                    "btn-disabled": tabId() === item.id,
+                                    loading: tabId() === item.id && isLoading(),
                                 }}
                             >
                                 Select

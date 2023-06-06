@@ -1,5 +1,10 @@
 import { BACKEND_URL, WEBSOCKET_URL } from "@src/config";
-import { BackgroundScriptEvent, BackgroundScriptMessage, ClientType } from "./types";
+import {
+    BackgroundScriptEvent,
+    BackgroundScriptMessage,
+    ClientType,
+    PathChangeMessage,
+} from "./types";
 import { popupPageActions } from "../popup/actions";
 import { contentScriptActions } from "../content/actions";
 import { sendServerMessage } from "../serverMessage";
@@ -22,6 +27,7 @@ const reset = () => {
     sse?.close();
     sse = null;
 };
+reset();
 
 chrome.tabs.onRemoved.addListener((closedTabId) => {
     if (closedTabId !== tabId) return;
@@ -83,27 +89,25 @@ chrome.runtime.onMessage.addListener((message: BackgroundScriptMessage, sender, 
         case BackgroundScriptEvent.TabReady:
             if (sender.tab?.id !== tabId) break;
             connection = chrome.tabs.connect(tabId);
-            connection.onMessage.addListener((message) => {
-                if (message.type === "changePath") {
-                    chrome.scripting.executeScript({
-                        world: "MAIN",
-                        target: { tabId },
-                        func: (newPath: string) => {
-                            const logo: any = document.querySelector("#logo a");
-                            const data = logo.data;
-                            logo.data = {
-                                commandMetadata: {
-                                    webCommandMetadata: {
-                                        url: newPath,
-                                    },
+            connection.onMessage.addListener((message: PathChangeMessage) => {
+                chrome.scripting.executeScript({
+                    world: "MAIN",
+                    target: { tabId },
+                    func: (newPath: string) => {
+                        const logo: any = document.querySelector("#logo a");
+                        const data = logo.data;
+                        logo.data = {
+                            commandMetadata: {
+                                webCommandMetadata: {
+                                    url: newPath,
                                 },
-                            };
-                            logo.click();
-                            logo.data = data;
-                        },
-                        args: [message.path],
-                    });
-                }
+                            },
+                        };
+                        logo.click();
+                        logo.data = data;
+                    },
+                    args: [message.path],
+                });
             });
             connection.onDisconnect.addListener(() => {
                 connection = null;

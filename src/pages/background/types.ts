@@ -5,6 +5,7 @@ export enum BackgroundScriptEvent {
     StartReceiving,
     TabReady,
     Stop,
+    PathChange,
 }
 
 export type InitialPopupDataMessage = {
@@ -32,6 +33,11 @@ export type TabReadyMessage = {
 
 export type StopMessage = {
     type: BackgroundScriptEvent.Stop;
+};
+
+export type PathChangeMessage = {
+    type: BackgroundScriptEvent.PathChange;
+    path: string;
 };
 
 export type BackgroundScriptMessage =

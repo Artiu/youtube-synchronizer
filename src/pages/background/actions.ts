@@ -31,6 +31,10 @@ const tabReady = () => {
     sendMessageToBackgroundScript({ type: BackgroundScriptEvent.TabReady });
 };
 
+const changePath = (port: chrome.runtime.Port, path: string) => {
+    port.postMessage({ type: BackgroundScriptEvent.PathChange, path });
+};
+
 export const backgroundScriptActions = {
     getInitialPopupData,
     startReceiving,
@@ -38,4 +42,5 @@ export const backgroundScriptActions = {
     stop,
     changeTab,
     tabReady,
+    changePath,
 };

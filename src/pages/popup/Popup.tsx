@@ -1,42 +1,24 @@
-import { Show, createEffect, createSignal } from "solid-js";
+import { JSX, Show } from "solid-js";
 import Navigation from "./components/Navigation";
 import JoinScreen from "./screens/Join";
 import { Dynamic } from "solid-js/web";
 import CreateScreen from "./screens/Create";
-import { clientType, stopStreaming } from "./store";
+import { clientType, isLocked, stopStreaming } from "./store";
+import { ClientType } from "../background/types";
 
-export type Screens = keyof typeof screens;
-
-const screens = {
-    join: JoinScreen,
-    create: CreateScreen,
+const clientTypeToScreens: Record<ClientType, () => JSX.Element> = {
+    receiver: JoinScreen,
+    sender: CreateScreen,
 };
 
 const Popup = () => {
-    const [screen, setScreen] = createSignal<Screens>("join");
-
-    createEffect(() => {
-        if (!clientType()) return;
-        if (clientType() === "receiver") {
-            setScreen("join");
-        } else {
-            setScreen("create");
-        }
-    });
-
-    const shouldBeLocked = () => !!clientType();
-
     return (
         <div class="w-[400px]">
-            <Navigation
-                currentScreen={screen()}
-                changeScreen={setScreen}
-                locked={shouldBeLocked()}
-            />
+            <Navigation />
             <div class="px-5 py-2">
                 <div class="flex flex-col items-center gap-2">
-                    <Dynamic component={screens[screen()]} />
-                    <Show when={clientType()}>
+                    <Dynamic component={clientTypeToScreens[clientType()]} />
+                    <Show when={isLocked()}>
                         <button class="btn btn-error" onClick={stopStreaming}>
                             Stop
                         </button>

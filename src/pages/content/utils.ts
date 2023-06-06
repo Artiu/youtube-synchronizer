@@ -7,3 +7,7 @@ export const getPlayingVideo = () => {
 export const getYoutubePath = (url: string) => {
     return url.split("youtube.com")[1];
 };
+
+export const stripIndex = (fullYtPath: string) => {
+    return fullYtPath.replace(/\&index=\d{1,}/, "");
+};

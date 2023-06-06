@@ -1,8 +1,7 @@
 import { For } from "solid-js";
 
-const CODE_LENGTH = 6;
-
 type CodeInputProps = {
+    codeLength: number;
     updateCode: (newCode: string) => void;
 };
 
@@ -56,21 +55,19 @@ export default function CodeInput(props: CodeInputProps) {
     };
 
     return (
-        <>
-            <div class="flex gap-2">
-                <For each={new Array(CODE_LENGTH)}>
-                    {(_, index) => (
-                        <input
-                            class="input input-bordered w-8 text-center p-0"
-                            ref={(el) => inputs.push(el)}
-                            onBeforeInput={onBeforeInput(index())}
-                            onInput={onInput(index())}
-                            onPaste={onPaste}
-                            autofocus={index() === 0}
-                        />
-                    )}
-                </For>
-            </div>
-        </>
+        <div class="flex gap-2">
+            <For each={new Array(props.codeLength)}>
+                {(_, index) => (
+                    <input
+                        class="input input-bordered w-8 text-center p-0"
+                        ref={(el) => inputs.push(el)}
+                        onBeforeInput={onBeforeInput(index())}
+                        onInput={onInput(index())}
+                        onPaste={onPaste}
+                        autofocus={index() === 0}
+                    />
+                )}
+            </For>
+        </div>
     );
 }

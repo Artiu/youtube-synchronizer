@@ -25,6 +25,7 @@ export default function JoinScreen() {
     const [isLoading, setIsLoading] = createSignal(false);
     const [error, setError] = createSignal(null);
     let code = "";
+    const codeLength = 6;
 
     const updateCode = (newCode: string) => {
         setError(null);
@@ -44,7 +45,7 @@ export default function JoinScreen() {
     onCleanup(() => chrome.runtime.onMessage.removeListener(onMessage));
 
     const join = () => {
-        if (code.length < 6) return;
+        if (code.length < codeLength) return;
         setError(null);
         setIsLoading(true);
         startReceiving(code);
@@ -53,7 +54,7 @@ export default function JoinScreen() {
     return (
         <Show when={!joinCode()} fallback={<Joined />}>
             <p class="text-2xl font-bold">Enter join code:</p>
-            <CodeInput updateCode={updateCode} />
+            <CodeInput updateCode={updateCode} codeLength={codeLength} />
             <Show when={error()}>
                 <p class="text-error text-lg">{error()}</p>
             </Show>

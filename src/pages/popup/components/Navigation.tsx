@@ -1,16 +1,10 @@
-import { Setter } from "solid-js";
-import { Screens } from "../Popup";
+import { ClientType } from "@src/pages/background/types";
+import { clientType, isLocked, setClientType } from "../store";
 
-type NavigationProps = {
-    locked: boolean;
-    currentScreen: Screens;
-    changeScreen: Setter<Screens>;
-};
-
-export default function Navigation(props: NavigationProps) {
-    const changeScreen = (name: Screens) => () => {
-        if (props.locked) return;
-        props.changeScreen(name);
+export default function Navigation() {
+    const changeScreen = (name: ClientType) => () => {
+        if (isLocked()) return;
+        setClientType(name);
     };
 
     return (
@@ -18,20 +12,20 @@ export default function Navigation(props: NavigationProps) {
             <button
                 class="tab w-1/2"
                 classList={{
-                    "tab-active": props.currentScreen === "join",
-                    "tab-disabled": props.locked,
+                    "tab-active": clientType() === "receiver",
+                    "tab-disabled": isLocked(),
                 }}
-                onClick={changeScreen("join")}
+                onClick={changeScreen("receiver")}
             >
                 Join
             </button>
             <button
                 class="tab w-1/2"
                 classList={{
-                    "tab-active": props.currentScreen === "create",
-                    "tab-disabled": props.locked,
+                    "tab-active": clientType() === "sender",
+                    "tab-disabled": isLocked(),
                 }}
-                onClick={changeScreen("create")}
+                onClick={changeScreen("sender")}
             >
                 Create
             </button>

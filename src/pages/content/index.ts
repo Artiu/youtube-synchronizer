@@ -1,14 +1,12 @@
 import { backgroundScriptActions } from "../background/actions";
 import { ServerMessageEvent } from "../serverMessage";
-import { updateCurrentTimeInVideo, setExactTimeInVideo } from "./receiver";
-import { playVideo, pauseVideo, changeUrl, changePlaybackRate } from "./receiver";
+import { updateCurrentTimeInVideo, setExactTimeInVideo, isPathSame } from "./receiver";
+import { playVideo, pauseVideo, changePlaybackRate } from "./receiver";
 import { startSharing, stopSharing } from "./share";
 import { ContentScriptEvent, ContentScriptMessage } from "./types";
+import { stripIndex } from "./utils";
 
 chrome.runtime.onConnect.addListener((port) => {
-    const sendFunction = (message: any) => {
-        port.postMessage(message);
-    };
     port.onMessage.addListener((msg: ContentScriptMessage) => {
         if (msg.type === ContentScriptEvent.StartSharing) {
             startSharing(port);
@@ -16,7 +14,10 @@ chrome.runtime.onConnect.addListener((port) => {
         }
 
         if (msg.type === ServerMessageEvent.Sync) {
-            changeUrl(msg.path, sendFunction);
+            const path = stripIndex(msg.path);
+            if (!isPathSame(path)) {
+                backgroundScriptActions.changePath(port, path);
+            }
             if (msg.isPaused) {
                 pauseVideo();
             } else {
@@ -38,7 +39,7 @@ chrome.runtime.onConnect.addListener((port) => {
             return;
         }
         if (msg.type === ServerMessageEvent.PathChange) {
-            changeUrl(msg.path, sendFunction);
+            backgroundScriptActions.changePath(port, msg.path);
             return;
         }
         if (msg.type === ServerMessageEvent.RateChange) {

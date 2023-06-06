@@ -1,4 +1,4 @@
-import { getPlayingVideo, getYoutubePath } from "./utils";
+import { getPlayingVideo, getYoutubePath, stripIndex } from "./utils";
 
 export const playVideo = async () => {
     const video = getPlayingVideo();
@@ -30,12 +30,6 @@ export const updateCurrentTimeInVideo = (newTime: number) => {
     video.currentTime = newTime;
 };
 
-const stripIndex = (fullYtPath: string) => {
-    return fullYtPath.replace(/\&index=\d{1,}/, "");
-};
-
-export const changeUrl = (path: string, sendFunction: (message: any) => void) => {
-    path = stripIndex(path);
-    if (stripIndex(getYoutubePath(location.href)) === path) return;
-    sendFunction({ type: "changePath", path });
+export const isPathSame = (strippedPath: string) => {
+    return stripIndex(getYoutubePath(location.href)) === strippedPath;
 };
