@@ -8,124 +8,86 @@ import {
 import { popupPageActions } from "../popup/actions";
 import { contentScriptActions } from "../content/actions";
 import { sendServerMessage } from "../serverMessage";
+import { clearData, getData, setData } from "../storage";
 
-let tabId: number;
-let clientType: ClientType;
-let joinCode: string;
-let connection: chrome.runtime.Port;
-let ws: WebSocket;
-let sse: EventSource;
-let reconnectKey: string;
+chrome.storage.session.setAccessLevel({ accessLevel: "TRUSTED_AND_UNTRUSTED_CONTEXTS" });
 
-const reset = () => {
-	tabId = null;
-	clientType = null;
-	joinCode = null;
-	connection?.disconnect();
-	connection = null;
-	ws?.close();
-	ws = null;
-	sse?.close();
-	sse = null;
-};
-reset();
-
-chrome.tabs.onRemoved.addListener((closedTabId) => {
-	if (closedTabId !== tabId) return;
-	reset();
+chrome.tabs.onRemoved.addListener(async (closedTabId) => {
+	const data = await getData();
+	if (closedTabId !== data.tabId) return;
+	clearData();
 });
 
-chrome.runtime.onMessage.addListener((message: BackgroundScriptMessage, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener(async (message: BackgroundScriptMessage, sender) => {
+	const data = await getData();
 	switch (message.type) {
-		case BackgroundScriptEvent.InitialPopupData:
-			sendResponse({ tabId, clientType, joinCode });
-			break;
 		case BackgroundScriptEvent.StartSharing:
-			ws = new WebSocket(
-				WEBSOCKET_URL + `/ws${reconnectKey ? `?reconnectKey=${reconnectKey}` : ""}`
-			);
-			ws.addEventListener("open", () => {
-				popupPageActions.sendWsOpen();
-				tabId = message.tabId;
-				clientType = "sender";
-				connection = chrome.tabs.connect(tabId);
-				connection.onMessage.addListener((message) => {
-					ws.send(JSON.stringify(message));
-				});
-				contentScriptActions.startSharing(connection);
-			});
-			ws.addEventListener("message", (msg) => {
-				const message = JSON.parse(msg.data);
-				if (message.type === "reconnectKey") {
-					reconnectKey = message.key;
-				}
-				if (message.type === "code") {
-					joinCode = message.code;
-					popupPageActions.sendCode(joinCode);
-				}
-			});
-			break;
 		case BackgroundScriptEvent.ChangeTab:
-			connection.disconnect();
-			tabId = message.tabId;
-			connection = chrome.tabs.connect(tabId);
-			connection.onMessage.addListener((message) => {
-				ws.send(JSON.stringify(message));
-			});
-			contentScriptActions.startSharing(connection);
+			await setData({ clientType: "sender", tabId: message.tabId });
+			contentScriptActions.startSharing(message.tabId);
 			break;
 		case BackgroundScriptEvent.StartReceiving:
-			const setupSSE = () => {
-				sse = new EventSource(BACKEND_URL + "/room/" + message.joinCode);
-				sse.addEventListener("open", async () => {
-					const tab = await chrome.tabs.create({
-						url: "https://www.youtube.com",
-					});
-					joinCode = message.joinCode;
-					tabId = tab.id;
-					clientType = "receiver";
-				});
-				sse.addEventListener("message", (ev) => {
-					sendServerMessage(connection, JSON.parse(ev.data));
-				});
-				sse.addEventListener("error", (e) => {
+			const setupReceiving = async () => {
+				const res = await fetch(`${BACKEND_URL}/room/${message.joinCode}/path`);
+				if (res.status === 404) {
 					popupPageActions.sendSseError("Incorrect code!");
-					reset();
+					clearData();
+					return;
+				}
+				if (res.status === 500) {
+					popupPageActions.sendSseError("Something went wrong!");
+					clearData();
+					return;
+				}
+				const path = await res.text();
+				const tab = await chrome.tabs.create({
+					url: "https://www.youtube.com" + path,
+				});
+				await setData({
+					joinCode: message.joinCode,
+					tabId: tab.id,
+					clientType: "receiver",
 				});
 			};
-			setupSSE();
+			setupReceiving();
 			break;
 		case BackgroundScriptEvent.TabReady:
-			if (sender.tab?.id !== tabId) break;
-			connection = chrome.tabs.connect(tabId);
-			connection.onMessage.addListener((message: PathChangeMessage) => {
-				chrome.scripting.executeScript({
-					world: "MAIN",
-					target: { tabId },
-					func: (newPath: string) => {
-						const logo: any = document.querySelector("#logo a");
-						const data = logo.data;
-						logo.data = {
-							commandMetadata: {
-								webCommandMetadata: {
-									url: newPath,
-								},
+			if (sender.tab?.id !== data.tabId) break;
+			if (data.clientType === "sender") {
+				contentScriptActions.startSharing(data.tabId);
+			}
+			if (data.clientType === "receiver") {
+				contentScriptActions.startReceiving(data.tabId);
+			}
+			break;
+		case BackgroundScriptEvent.PathChange:
+			chrome.scripting.executeScript({
+				world: "MAIN",
+				target: { tabId: sender.tab.id },
+				func: (newPath: string) => {
+					const logo: any = document.querySelector("#logo a");
+					const data = logo.data;
+					logo.data = {
+						commandMetadata: {
+							webCommandMetadata: {
+								url: newPath,
 							},
-						};
-						logo.click();
-						logo.data = data;
-					},
-					args: [message.path],
-				});
+						},
+					};
+					logo.click();
+					logo.data = data;
+				},
+				args: [message.path],
 			});
-			connection.onDisconnect.addListener(() => {
-				connection = null;
-			});
-			contentScriptActions.startSharing(connection);
 			break;
 		case BackgroundScriptEvent.Stop:
-			reconnectKey = null;
-			reset();
+			if (data.clientType === "receiver") {
+				contentScriptActions.stopReceiving(data.tabId);
+			}
+			if (data.clientType === "sender") {
+				contentScriptActions.stopSharing(data.tabId);
+			}
+			clearData();
 			break;
 	}
 });

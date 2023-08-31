@@ -1,57 +1,58 @@
 export enum BackgroundScriptEvent {
-    InitialPopupData,
-    StartSharing,
-    ChangeTab,
-    StartReceiving,
-    TabReady,
-    Stop,
-    PathChange,
+	InitialPopupData,
+	StartSharing,
+	ChangeTab,
+	StartReceiving,
+	TabReady,
+	Stop,
+	PathChange,
 }
 
 export type InitialPopupDataMessage = {
-    type: BackgroundScriptEvent.InitialPopupData;
+	type: BackgroundScriptEvent.InitialPopupData;
 };
 
 export type StartSharingMessage = {
-    type: BackgroundScriptEvent.StartSharing;
-    tabId: number;
+	type: BackgroundScriptEvent.StartSharing;
+	tabId: number;
 };
 
 export type ChangeTabMessage = {
-    type: BackgroundScriptEvent.ChangeTab;
-    tabId: number;
+	type: BackgroundScriptEvent.ChangeTab;
+	tabId: number;
 };
 
 export type StartReceivingMessage = {
-    type: BackgroundScriptEvent.StartReceiving;
-    joinCode: string;
+	type: BackgroundScriptEvent.StartReceiving;
+	joinCode: string;
 };
 
 export type TabReadyMessage = {
-    type: BackgroundScriptEvent.TabReady;
+	type: BackgroundScriptEvent.TabReady;
 };
 
 export type StopMessage = {
-    type: BackgroundScriptEvent.Stop;
+	type: BackgroundScriptEvent.Stop;
 };
 
 export type PathChangeMessage = {
-    type: BackgroundScriptEvent.PathChange;
-    path: string;
+	type: BackgroundScriptEvent.PathChange;
+	path: string;
 };
 
 export type BackgroundScriptMessage =
-    | InitialPopupDataMessage
-    | StartSharingMessage
-    | ChangeTabMessage
-    | StartReceivingMessage
-    | TabReadyMessage
-    | StopMessage;
+	| InitialPopupDataMessage
+	| StartSharingMessage
+	| ChangeTabMessage
+	| StartReceivingMessage
+	| TabReadyMessage
+	| StopMessage
+	| PathChangeMessage;
 
 export type InitialPopupData = {
-    tabId: number;
-    clientType: ClientType;
-    joinCode: string;
+	tabId: number;
+	clientType: ClientType;
+	joinCode: string;
 };
 
 export type ClientType = "receiver" | "sender";

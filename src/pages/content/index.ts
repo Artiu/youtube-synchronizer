@@ -1,55 +1,106 @@
+import { BACKEND_URL, WEBSOCKET_URL } from "@src/config";
 import { backgroundScriptActions } from "../background/actions";
-import { ServerMessageEvent } from "../serverMessage";
+import { ServerMessage, ServerMessageEvent } from "../serverMessage";
 import { updateCurrentTimeInVideo, setExactTimeInVideo, isPathSame } from "./receiver";
 import { playVideo, pauseVideo, changePlaybackRate } from "./receiver";
-import { startSharing, stopSharing } from "./share";
-import { ContentScriptEvent, ContentScriptMessage } from "./types";
 import { stripIndex } from "./utils";
+import { popupPageActions } from "../popup/actions";
+import { clearData, getData, setData } from "../storage";
+import { startSharing, stopSharing } from "./share";
+import { ContentScriptEvent } from "./types";
 
-chrome.runtime.onConnect.addListener((port) => {
-    port.onMessage.addListener((msg: ContentScriptMessage) => {
-        if (msg.type === ContentScriptEvent.StartSharing) {
-            startSharing(port);
-            return;
-        }
+let sse: EventSource = null;
+let ws: WebSocket = null;
 
-        if (msg.type === ServerMessageEvent.Sync) {
-            const path = stripIndex(msg.path);
-            if (!isPathSame(path)) {
-                backgroundScriptActions.changePath(port, path);
-            }
-            if (msg.isPaused) {
-                pauseVideo();
-            } else {
-                playVideo();
-            }
-            updateCurrentTimeInVideo(msg.time);
-            changePlaybackRate(msg.rate);
-            return;
-        }
+const cleanupWebsocket = () => {
+	stopSharing();
+	ws?.removeEventListener("close", cleanupWebsocket);
+	ws?.close();
+	ws = null;
+};
 
-        if (msg.type === ServerMessageEvent.StartPlaying) {
-            playVideo();
-            setExactTimeInVideo(msg.time);
-            return;
-        }
-        if (msg.type === ServerMessageEvent.Pause) {
-            pauseVideo();
-            setExactTimeInVideo(msg.time);
-            return;
-        }
-        if (msg.type === ServerMessageEvent.PathChange) {
-            backgroundScriptActions.changePath(port, msg.path);
-            return;
-        }
-        if (msg.type === ServerMessageEvent.RateChange) {
-            changePlaybackRate(msg.rate);
-            return;
-        }
-    });
-    port.onDisconnect.addListener(() => {
-        stopSharing();
-    });
+chrome.runtime.onMessage.addListener(async (message: ContentScriptEvent) => {
+	const data = await getData();
+	if (message === ContentScriptEvent.StartReceiving) {
+		sse = new EventSource(BACKEND_URL + "/room/" + data.joinCode);
+		sse.addEventListener("message", (e) => {
+			let msg: ServerMessage;
+			try {
+				msg = JSON.parse(e.data);
+			} catch (err) {
+				console.error(err);
+				return;
+			}
+			if (msg.type === ServerMessageEvent.Sync) {
+				const path = stripIndex(msg.path);
+				if (!isPathSame(path)) {
+					backgroundScriptActions.changePath(path);
+				}
+				if (msg.isPaused) {
+					pauseVideo();
+				} else {
+					playVideo();
+				}
+				updateCurrentTimeInVideo(msg.time);
+				changePlaybackRate(msg.rate);
+				return;
+			}
+
+			if (msg.type === ServerMessageEvent.StartPlaying) {
+				playVideo();
+				setExactTimeInVideo(msg.time);
+				return;
+			}
+			if (msg.type === ServerMessageEvent.Pause) {
+				pauseVideo();
+				setExactTimeInVideo(msg.time);
+				return;
+			}
+			if (msg.type === ServerMessageEvent.PathChange) {
+				backgroundScriptActions.changePath(msg.path);
+				return;
+			}
+			if (msg.type === ServerMessageEvent.RateChange) {
+				changePlaybackRate(msg.rate);
+				return;
+			}
+		});
+		sse.addEventListener("error", (e) => {
+			popupPageActions.sendSseError("Something went wrong!");
+			clearData();
+		});
+		return;
+	}
+	if (message === ContentScriptEvent.StartSharing) {
+		ws = new WebSocket(
+			WEBSOCKET_URL + `/ws${data.reconnectKey ? `?reconnectKey=${data.reconnectKey}` : ""}`
+		);
+		ws.addEventListener("open", () => {
+			popupPageActions.sendWsOpen();
+			startSharing(ws);
+		});
+		ws.addEventListener("message", async (msg) => {
+			const message = JSON.parse(msg.data);
+			if (message.type === "reconnectKey") {
+				await setData({ reconnectKey: message.key });
+			}
+			if (message.type === "code") {
+				await setData({ joinCode: message.code });
+				popupPageActions.sendCode(message.code);
+			}
+		});
+		ws.addEventListener("close", cleanupWebsocket);
+		return;
+	}
+	if (message === ContentScriptEvent.StopReceiving) {
+		sse?.close();
+		sse = null;
+		return;
+	}
+	if (message === ContentScriptEvent.StopSharing) {
+		cleanupWebsocket();
+		return;
+	}
 });
 
 backgroundScriptActions.tabReady();

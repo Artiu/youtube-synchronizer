@@ -1,8 +1,8 @@
 export enum PopupPageEvent {
-    WsOpen,
-    WsClosed,
-    SseError,
-    Code,
+	WsOpen = "ws-open",
+	WsClosed = "ws-closed",
+	SseError = "sse-error",
+	Code = "code",
 }
 
 export type WsOpenMessage = { type: PopupPageEvent.WsOpen };

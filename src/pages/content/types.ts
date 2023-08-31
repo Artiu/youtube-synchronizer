@@ -1,11 +1,12 @@
-import { ServerMessage } from "../serverMessage";
-
 export enum ContentScriptEvent {
-    StartSharing,
+	StartSharing = "start-sharing",
+	StartReceiving = "start-receiving",
+	StopSharing = "stop-sharing",
+	StopReceiving = "stop-receiving",
 }
 
 export type StartSharingMessage = {
-    type: ContentScriptEvent.StartSharing;
+	type: ContentScriptEvent.StartSharing;
 };
 
-export type ContentScriptMessage = ServerMessage | StartSharingMessage;
+export type ContentScriptMessage = StartSharingMessage;

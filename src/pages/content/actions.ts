@@ -1,10 +1,19 @@
-import { ContentScriptEvent, ContentScriptMessage } from "./types";
+import { ContentScriptEvent } from "./types";
 
-const sendMessage = (port: chrome.runtime.Port, message: ContentScriptMessage) => {
-    port?.postMessage(message);
-};
-const startSharing = (port: chrome.runtime.Port) => {
-    sendMessage(port, { type: ContentScriptEvent.StartSharing });
+const startSharing = (tabId: number) => {
+	chrome.tabs.sendMessage(tabId, ContentScriptEvent.StartSharing);
 };
 
-export const contentScriptActions = { startSharing };
+const startReceiving = (tabId: number) => {
+	chrome.tabs.sendMessage(tabId, ContentScriptEvent.StartReceiving);
+};
+
+const stopSharing = (tabId: number) => {
+	chrome.tabs.sendMessage(tabId, ContentScriptEvent.StopSharing);
+};
+
+const stopReceiving = (tabId: number) => {
+	chrome.tabs.sendMessage(tabId, ContentScriptEvent.StopReceiving);
+};
+
+export const contentScriptActions = { startSharing, startReceiving, stopSharing, stopReceiving };
