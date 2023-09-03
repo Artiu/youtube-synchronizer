@@ -47,7 +47,10 @@ export default function CreateScreen() {
 			</Show>
 			<h1 class="text-2xl font-bold">Choose tab to share: </h1>
 			<div class="w-full grid grid-cols-[1fr_max-content] gap-x-3 gap-y-1 items-center">
-				<For each={ytTabs()}>
+				<For
+					each={ytTabs()}
+					fallback={<p class="text-base text-center">Open YouTube to start session</p>}
+				>
 					{(item) => (
 						<>
 							<p class="text-[14px]">{item.title}</p>

@@ -1,9 +1,9 @@
 import { ServerMessage, ServerMessageEvent } from "../serverMessage";
-import { getPlayingVideo, getYoutubePath } from "./utils";
+import { getYoutubePath, waitForPlayingVideo } from "./utils";
 
 let websocket: WebSocket;
-
 let video: HTMLVideoElement;
+let isStopped = true;
 
 const sendMessage = (message: ServerMessage) => {
 	websocket.send(JSON.stringify(message));
@@ -53,22 +53,31 @@ const cleanupListenersOnVideo = () => {
 	clearInterval(intervalId);
 };
 
-const onPageChange = (e: any) => {
+const onPageChange = async (e: any) => {
 	sendMessage({ type: ServerMessageEvent.PathChange, path: e.detail.url });
 	cleanupListenersOnVideo();
-	video = getPlayingVideo();
+	video = await waitForPlayingVideo();
+	if (isStopped) {
+		return;
+	}
 	setupListenersOnVideo();
 };
 
-export const startSharing = (ws: WebSocket) => {
+export const startSharing = async (ws: WebSocket) => {
 	websocket = ws;
-	video = getPlayingVideo();
-	setupListenersOnVideo();
+	isStopped = false;
 	window.addEventListener("yt-navigate-start", onPageChange);
+	sendMessage({ type: ServerMessageEvent.PathChange, path: getYoutubePath(location.href) });
+	video = await waitForPlayingVideo();
+	if (isStopped) {
+		return;
+	}
+	setupListenersOnVideo();
 };
 
 export const stopSharing = () => {
 	cleanupListenersOnVideo();
+	isStopped = true;
 	video = null;
 	websocket = null;
 	window.removeEventListener("yt-navigate-start", onPageChange);
