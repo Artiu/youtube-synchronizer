@@ -16,8 +16,9 @@ const reset = () => {
 };
 
 const updateTabId = (newTabId: number) => {
-	backgroundScriptActions.changeTab(newTabId);
+	setIsLocked(true);
 	setTabId(newTabId);
+	backgroundScriptActions.changeTab(newTabId);
 };
 
 chrome.runtime.onMessage.addListener((msg: PopupMessage) => {
