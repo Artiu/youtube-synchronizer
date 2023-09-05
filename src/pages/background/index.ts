@@ -1,13 +1,7 @@
-import { BACKEND_URL, WEBSOCKET_URL } from "@src/config";
-import {
-	BackgroundScriptEvent,
-	BackgroundScriptMessage,
-	ClientType,
-	PathChangeMessage,
-} from "./types";
+import { BACKEND_URL } from "@src/config";
+import { BackgroundScriptEvent, BackgroundScriptMessage } from "./types";
 import { popupPageActions } from "../popup/actions";
 import { contentScriptActions } from "../content/actions";
-import { sendServerMessage } from "../serverMessage";
 import { clearData, getData, setData } from "../storage";
 
 chrome.storage.session.setAccessLevel({ accessLevel: "TRUSTED_AND_UNTRUSTED_CONTEXTS" });

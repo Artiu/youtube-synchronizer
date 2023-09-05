@@ -64,10 +64,15 @@ chrome.runtime.onMessage.addListener(async (message: ContentScriptEvent) => {
 				changePlaybackRate(msg.rate);
 				return;
 			}
+			if (msg.type === ServerMessageEvent.Close) {
+				clearData();
+				sse?.close();
+				sse = null;
+				return;
+			}
 		});
-		sse.addEventListener("error", (e) => {
+		sse.addEventListener("error", () => {
 			popupPageActions.sendSseError("Something went wrong!");
-			clearData();
 		});
 		return;
 	}

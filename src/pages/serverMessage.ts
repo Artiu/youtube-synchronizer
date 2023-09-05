@@ -1,46 +1,48 @@
 export enum ServerMessageEvent {
-    Sync = "sync",
-    StartPlaying = "startPlaying",
-    Pause = "pause",
-    PathChange = "pathChange",
-    RateChange = "rateChange",
+	Sync = "sync",
+	StartPlaying = "startPlaying",
+	Pause = "pause",
+	PathChange = "pathChange",
+	RateChange = "rateChange",
+	Close = "close",
 }
 
 export type SyncMessage = {
-    type: ServerMessageEvent.Sync;
-    path: string;
-    isPaused: boolean;
-    time: number;
-    rate: number;
+	type: ServerMessageEvent.Sync;
+	path: string;
+	isPaused: boolean;
+	time: number;
+	rate: number;
 };
 
 export type StartPlayingMessage = {
-    type: ServerMessageEvent.StartPlaying;
-    time: number;
+	type: ServerMessageEvent.StartPlaying;
+	time: number;
 };
 
 export type PauseMessage = {
-    type: ServerMessageEvent.Pause;
-    time: number;
+	type: ServerMessageEvent.Pause;
+	time: number;
 };
 
 export type PathChangeMessage = {
-    type: ServerMessageEvent.PathChange;
-    path: string;
+	type: ServerMessageEvent.PathChange;
+	path: string;
 };
 
 export type RateChangeMessage = {
-    type: ServerMessageEvent.RateChange;
-    rate: number;
+	type: ServerMessageEvent.RateChange;
+	rate: number;
+};
+
+export type CloseMessage = {
+	type: ServerMessageEvent.Close;
 };
 
 export type ServerMessage =
-    | SyncMessage
-    | StartPlayingMessage
-    | PauseMessage
-    | PathChangeMessage
-    | RateChangeMessage;
-
-export const sendServerMessage = (port: chrome.runtime.Port, message: ServerMessage) => {
-    port.postMessage(message);
-};
+	| SyncMessage
+	| StartPlayingMessage
+	| PauseMessage
+	| PathChangeMessage
+	| RateChangeMessage
+	| CloseMessage;
