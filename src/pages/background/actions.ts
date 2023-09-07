@@ -16,11 +16,6 @@ const stop = () => {
 	sendMessageToBackgroundScript({ type: BackgroundScriptEvent.Stop });
 };
 
-const changeTab = (newTabId: number) => {
-	stop();
-	startSharing(newTabId);
-};
-
 const tabReady = () => {
 	sendMessageToBackgroundScript({ type: BackgroundScriptEvent.TabReady });
 };
@@ -33,7 +28,6 @@ export const backgroundScriptActions = {
 	startReceiving,
 	startSharing,
 	stop,
-	changeTab,
 	tabReady,
 	changePath,
 };

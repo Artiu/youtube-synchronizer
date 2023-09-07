@@ -103,6 +103,11 @@ chrome.runtime.onMessage.addListener(async (message: ContentScriptEvent) => {
 		return;
 	}
 	if (message === ContentScriptEvent.StopSharing) {
+		ws.send(JSON.stringify({ type: ServerMessageEvent.RemoveRoom }));
+		cleanupWebsocket();
+		return;
+	}
+	if (message === ContentScriptEvent.ChangeTab) {
 		cleanupWebsocket();
 		return;
 	}

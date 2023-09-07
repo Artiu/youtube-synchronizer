@@ -5,6 +5,7 @@ export enum ServerMessageEvent {
 	PathChange = "pathChange",
 	RateChange = "rateChange",
 	Close = "close",
+	RemoveRoom = "removeRoom",
 }
 
 export type SyncMessage = {
@@ -39,10 +40,15 @@ export type CloseMessage = {
 	type: ServerMessageEvent.Close;
 };
 
+export type RemoveRoomMessage = {
+	type: ServerMessageEvent.RemoveRoom;
+};
+
 export type ServerMessage =
 	| SyncMessage
 	| StartPlayingMessage
 	| PauseMessage
 	| PathChangeMessage
 	| RateChangeMessage
-	| CloseMessage;
+	| CloseMessage
+	| RemoveRoomMessage;

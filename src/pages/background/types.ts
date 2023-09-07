@@ -1,7 +1,6 @@
 export enum BackgroundScriptEvent {
 	InitialPopupData,
 	StartSharing,
-	ChangeTab,
 	StartReceiving,
 	TabReady,
 	Stop,
@@ -14,11 +13,6 @@ export type InitialPopupDataMessage = {
 
 export type StartSharingMessage = {
 	type: BackgroundScriptEvent.StartSharing;
-	tabId: number;
-};
-
-export type ChangeTabMessage = {
-	type: BackgroundScriptEvent.ChangeTab;
 	tabId: number;
 };
 
@@ -43,7 +37,6 @@ export type PathChangeMessage = {
 export type BackgroundScriptMessage =
 	| InitialPopupDataMessage
 	| StartSharingMessage
-	| ChangeTabMessage
 	| StartReceivingMessage
 	| TabReadyMessage
 	| StopMessage

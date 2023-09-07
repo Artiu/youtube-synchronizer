@@ -1,5 +1,5 @@
 import { For, Show, createSignal, onCleanup } from "solid-js";
-import { joinCode, startStreaming, tabId, updateTabId } from "../store";
+import { joinCode, startStreaming, tabId } from "../store";
 import { PopupMessage, PopupPageEvent } from "../types";
 
 export default function CreateScreen() {
@@ -25,13 +25,9 @@ export default function CreateScreen() {
 		await navigator.clipboard.writeText(joinCode());
 	};
 
-	const changeTab = (newId: number) => () => {
-		if (tabId() === null) {
-			setIsLoading(true);
-			startStreaming(newId);
-		} else {
-			updateTabId(newId);
-		}
+	const startSharing = (newId: number) => () => {
+		setIsLoading(true);
+		startStreaming(newId);
 	};
 
 	return (
@@ -55,7 +51,7 @@ export default function CreateScreen() {
 						<>
 							<p class="text-[14px]">{item.title}</p>
 							<button
-								onClick={changeTab(item.id)}
+								onClick={startSharing(item.id)}
 								class="btn btn-sm btn-primary"
 								classList={{
 									"btn-disabled": tabId() === item.id,

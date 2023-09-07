@@ -16,8 +16,10 @@ chrome.runtime.onMessage.addListener(async (message: BackgroundScriptMessage, se
 	const data = await getData();
 	switch (message.type) {
 		case BackgroundScriptEvent.StartSharing:
-		case BackgroundScriptEvent.ChangeTab:
 			await setData({ clientType: "sender", tabId: message.tabId });
+			if (data.tabId) {
+				contentScriptActions.changeTab(data.tabId);
+			}
 			contentScriptActions.startSharing(message.tabId);
 			break;
 		case BackgroundScriptEvent.StartReceiving:

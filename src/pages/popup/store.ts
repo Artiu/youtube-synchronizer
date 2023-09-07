@@ -15,12 +15,6 @@ const reset = () => {
 	setIsLocked(false);
 };
 
-const updateTabId = (newTabId: number) => {
-	setIsLocked(true);
-	setTabId(newTabId);
-	backgroundScriptActions.changeTab(newTabId);
-};
-
 chrome.runtime.onMessage.addListener((msg: PopupMessage) => {
 	if (msg.type === PopupPageEvent.Code) {
 		setJoinCode(msg.code);
@@ -61,7 +55,6 @@ const stopStreaming = () => {
 
 export {
 	tabId,
-	updateTabId,
 	joinCode,
 	clientType,
 	setClientType,

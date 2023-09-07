@@ -8,6 +8,10 @@ const startReceiving = (tabId: number) => {
 	chrome.tabs.sendMessage(tabId, ContentScriptEvent.StartReceiving);
 };
 
+const changeTab = (tabId: number) => {
+	chrome.tabs.sendMessage(tabId, ContentScriptEvent.ChangeTab);
+};
+
 const stopSharing = (tabId: number) => {
 	chrome.tabs.sendMessage(tabId, ContentScriptEvent.StopSharing);
 };
@@ -16,4 +20,10 @@ const stopReceiving = (tabId: number) => {
 	chrome.tabs.sendMessage(tabId, ContentScriptEvent.StopReceiving);
 };
 
-export const contentScriptActions = { startSharing, startReceiving, stopSharing, stopReceiving };
+export const contentScriptActions = {
+	startSharing,
+	startReceiving,
+	changeTab,
+	stopSharing,
+	stopReceiving,
+};

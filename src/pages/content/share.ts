@@ -33,6 +33,13 @@ const setupListenersOnVideo = () => {
 	video.addEventListener("playing", playingEvent);
 	video.addEventListener("ratechange", rateChangeEvent);
 
+	sendMessage({
+		type: ServerMessageEvent.Sync,
+		time: video.currentTime,
+		isPaused: video.paused,
+		path: getYoutubePath(location.href),
+		rate: video.playbackRate,
+	});
 	intervalId = setInterval(() => {
 		sendMessage({
 			type: ServerMessageEvent.Sync,
@@ -53,25 +60,30 @@ const cleanupListenersOnVideo = () => {
 	clearInterval(intervalId);
 };
 
-const onPageChange = async (e: any) => {
+const onPageChangeStart = (e: any) => {
 	sendMessage({ type: ServerMessageEvent.PathChange, path: e.detail.url });
-	cleanupListenersOnVideo();
-	video = await waitForPlayingVideo();
+};
+
+const onPageChangeFinish = async () => {
+	const newVideo = await waitForPlayingVideo();
 	if (isStopped) {
 		return;
 	}
+	cleanupListenersOnVideo();
+	video = newVideo;
 	setupListenersOnVideo();
 };
 
 export const startSharing = async (ws: WebSocket) => {
 	websocket = ws;
 	isStopped = false;
-	window.addEventListener("yt-navigate-start", onPageChange);
 	sendMessage({ type: ServerMessageEvent.PathChange, path: getYoutubePath(location.href) });
 	video = await waitForPlayingVideo();
 	if (isStopped) {
 		return;
 	}
+	window.addEventListener("yt-navigate-start", onPageChangeStart);
+	window.addEventListener("yt-navigate-finish", onPageChangeFinish);
 	setupListenersOnVideo();
 };
 
@@ -80,5 +92,6 @@ export const stopSharing = () => {
 	isStopped = true;
 	video = null;
 	websocket = null;
-	window.removeEventListener("yt-navigate-start", onPageChange);
+	window.removeEventListener("yt-navigate-start", onPageChangeStart);
+	window.removeEventListener("yt-navigate-finish", onPageChangeFinish);
 };

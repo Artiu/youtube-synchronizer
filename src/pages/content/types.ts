@@ -3,6 +3,7 @@ export enum ContentScriptEvent {
 	StartReceiving = "start-receiving",
 	StopSharing = "stop-sharing",
 	StopReceiving = "stop-receiving",
+	ChangeTab = "change-tab",
 }
 
 export type StartSharingMessage = {
