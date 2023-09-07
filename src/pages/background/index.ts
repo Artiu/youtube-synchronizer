@@ -2,7 +2,7 @@ import { BACKEND_URL } from "@src/config";
 import { BackgroundScriptEvent, BackgroundScriptMessage } from "./types";
 import { popupPageActions } from "../popup/actions";
 import { contentScriptActions } from "../content/actions";
-import { clearData, getData, setData } from "../storage";
+import { clearData, clearReconnectKey, getData, setData } from "../storage";
 
 chrome.storage.session.setAccessLevel({ accessLevel: "TRUSTED_AND_UNTRUSTED_CONTEXTS" });
 
@@ -77,13 +77,14 @@ chrome.runtime.onMessage.addListener(async (message: BackgroundScriptMessage, se
 			});
 			break;
 		case BackgroundScriptEvent.Stop:
+			clearReconnectKey();
+			clearData();
 			if (data.clientType === "receiver") {
 				contentScriptActions.stopReceiving(data.tabId);
 			}
 			if (data.clientType === "sender") {
 				contentScriptActions.stopSharing(data.tabId);
 			}
-			clearData();
 			break;
 	}
 });

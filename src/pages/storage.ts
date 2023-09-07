@@ -18,3 +18,7 @@ export const setData = async (data: Partial<Data>) => {
 export const clearData = async () => {
 	await chrome.storage.session.remove(["tabId", "clientType", "joinCode"]);
 };
+
+export const clearReconnectKey = async () => {
+	await chrome.storage.session.remove("reconnectKey");
+};
