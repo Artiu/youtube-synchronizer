@@ -113,7 +113,7 @@ const startWebsocket = async () => {
 		WEBSOCKET_URL + `/ws${data.reconnectKey ? `?reconnectKey=${data.reconnectKey}` : ""}`
 	);
 	ws.addEventListener("open", () => {
-		connectionStateManager.setConnectionState("connecting");
+		connectionStateManager.setConnectionState("connected");
 		isReconnecting = false;
 		reconnectTry = 0;
 		startSharing(ws);
