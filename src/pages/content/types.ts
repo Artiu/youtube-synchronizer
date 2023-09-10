@@ -4,10 +4,5 @@ export enum ContentScriptEvent {
 	StopSharing = "stop-sharing",
 	StopReceiving = "stop-receiving",
 	ChangeTab = "change-tab",
+	Reconnect = "reconnect",
 }
-
-export type StartSharingMessage = {
-	type: ContentScriptEvent.StartSharing;
-};
-
-export type ContentScriptMessage = StartSharingMessage;

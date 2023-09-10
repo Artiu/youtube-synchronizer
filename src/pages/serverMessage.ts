@@ -6,6 +6,8 @@ export enum ServerMessageEvent {
 	RateChange = "rateChange",
 	Close = "close",
 	RemoveRoom = "removeRoom",
+	HostDisconnected = "hostDisconnected",
+	HostReconnected = "hostReconnected",
 }
 
 export type SyncMessage = {
@@ -44,6 +46,14 @@ export type RemoveRoomMessage = {
 	type: ServerMessageEvent.RemoveRoom;
 };
 
+export type HostDisconnectedMessage = {
+	type: ServerMessageEvent.HostDisconnected;
+};
+
+export type HostReconnectedMessage = {
+	type: ServerMessageEvent.HostReconnected;
+};
+
 export type ServerMessage =
 	| SyncMessage
 	| StartPlayingMessage
@@ -51,4 +61,6 @@ export type ServerMessage =
 	| PathChangeMessage
 	| RateChangeMessage
 	| CloseMessage
-	| RemoveRoomMessage;
+	| RemoveRoomMessage
+	| HostDisconnectedMessage
+	| HostReconnectedMessage;

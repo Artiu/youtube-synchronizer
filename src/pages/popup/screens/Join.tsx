@@ -3,24 +3,6 @@ import CodeInput from "../components/CodeInput";
 import { joinCode, startReceiving } from "../store";
 import { PopupMessage, PopupPageEvent } from "../types";
 
-function Joined() {
-	const copy = async () => {
-		await navigator.clipboard.writeText(joinCode());
-	};
-
-	return (
-		<>
-			<div>
-				<p class="text-lg">You are connected to session with code:</p>
-				<p class="text-2xl font-bold text-center">{joinCode()}</p>
-			</div>
-			<button class="btn btn-primary btn-sm" onClick={copy}>
-				Copy
-			</button>
-		</>
-	);
-}
-
 export default function JoinScreen() {
 	const [isLoading, setIsLoading] = createSignal(false);
 	const [error, setError] = createSignal(null);
@@ -57,9 +39,9 @@ export default function JoinScreen() {
 	};
 
 	return (
-		<Show when={!joinCode()} fallback={<Joined />}>
+		<Show when={!joinCode()}>
 			<p class="text-2xl font-bold">Enter join code:</p>
-			<CodeInput updateCode={updateCode} codeLength={codeLength} />
+			<CodeInput updateCode={updateCode} codeLength={codeLength} locked={isLoading()} />
 			<Show when={error()}>
 				<p class="text-error text-lg">{error()}</p>
 			</Show>

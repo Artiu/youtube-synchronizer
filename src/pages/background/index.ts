@@ -12,6 +12,8 @@ chrome.tabs.onRemoved.addListener(async (closedTabId) => {
 	clearData();
 });
 
+let abortController: AbortController;
+
 chrome.runtime.onMessage.addListener(async (message: BackgroundScriptMessage, sender) => {
 	const data = await getData();
 	switch (message.type) {
@@ -24,7 +26,23 @@ chrome.runtime.onMessage.addListener(async (message: BackgroundScriptMessage, se
 			break;
 		case BackgroundScriptEvent.StartReceiving:
 			const setupReceiving = async () => {
-				const res = await fetch(`${BACKEND_URL}/room/${message.joinCode}/path`);
+				if (abortController) {
+					abortController.abort();
+				}
+				abortController = new AbortController();
+				let res: Response;
+				try {
+					res = await fetch(`${BACKEND_URL}/room/${message.joinCode}/path`, {
+						signal: abortController.signal,
+					});
+				} catch {
+					if (abortController.signal.aborted) {
+						popupPageActions.sendSseError("");
+						return;
+					}
+					popupPageActions.sendSseError("Cannot connect to server!");
+					return;
+				}
 				if (res.status === 404) {
 					popupPageActions.sendSseError("Incorrect code!");
 					clearData();
@@ -44,6 +62,7 @@ chrome.runtime.onMessage.addListener(async (message: BackgroundScriptMessage, se
 					tabId: tab.id,
 					clientType: "receiver",
 				});
+				abortController = null;
 			};
 			setupReceiving();
 			break;
@@ -77,6 +96,9 @@ chrome.runtime.onMessage.addListener(async (message: BackgroundScriptMessage, se
 			});
 			break;
 		case BackgroundScriptEvent.Stop:
+			if (abortController) {
+				abortController.abort();
+			}
 			clearReconnectKey();
 			clearData();
 			if (data.clientType === "receiver") {

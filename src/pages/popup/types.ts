@@ -1,13 +1,16 @@
+import { ConnectionState } from "../connectionState";
+
 export enum PopupPageEvent {
-	WsOpen = "ws-open",
-	WsClosed = "ws-closed",
-	SseError = "sse-error",
+	UpdateConnectionState = "updateConnectionState",
 	Code = "code",
+	SseError = "sseError",
 }
 
-export type WsOpenMessage = { type: PopupPageEvent.WsOpen };
-export type WsClosedMessage = { type: PopupPageEvent.WsClosed };
-export type SseErrorMessage = { type: PopupPageEvent.SseError; message: string };
+export type UpdateConnectionStateMessage = {
+	type: PopupPageEvent.UpdateConnectionState;
+	connectionState: ConnectionState;
+};
 export type CodeMessage = { type: PopupPageEvent.Code; code: string };
+export type SseErrorMessage = { type: PopupPageEvent.SseError; message: string };
 
-export type PopupMessage = WsOpenMessage | WsClosedMessage | SseErrorMessage | CodeMessage;
+export type PopupMessage = CodeMessage | UpdateConnectionStateMessage | SseErrorMessage;

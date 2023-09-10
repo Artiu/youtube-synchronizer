@@ -6,7 +6,9 @@ let video: HTMLVideoElement;
 let isStopped = true;
 
 const sendMessage = (message: ServerMessage) => {
-	websocket.send(JSON.stringify(message));
+	try {
+		websocket?.send(JSON.stringify(message));
+	} catch {}
 };
 
 const pauseEvent = () => {

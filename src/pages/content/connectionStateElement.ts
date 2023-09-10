@@ -1,5 +1,8 @@
+import { ConnectionState } from "../connectionState";
+
 export class ConnectionStateElement {
 	private element: HTMLParagraphElement;
+	private isMounted = false;
 
 	constructor() {
 		this.element = document.createElement("p");
@@ -20,7 +23,7 @@ export class ConnectionStateElement {
 		this.element.textContent = newText;
 	}
 
-	setConnectionState(state: "connecting" | "connected" | "reconnecting" | "disconnected") {
+	setConnectionState(state: ConnectionState) {
 		if (state === "connecting") {
 			this.updateText("Connecting...");
 			return;
@@ -37,12 +40,20 @@ export class ConnectionStateElement {
 			this.updateText("Disconnected");
 			return;
 		}
+		if (state === "hostDisconnected") {
+			this.updateText("Host disconnected");
+			return;
+		}
 	}
 
 	mount() {
+		if (this.isMounted) return;
+		this.isMounted = true;
 		document.body.appendChild(this.element);
 	}
 	unmount() {
+		if (!this.isMounted) return;
+		this.isMounted = false;
 		document.body.removeChild(this.element);
 	}
 }

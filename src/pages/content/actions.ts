@@ -20,10 +20,15 @@ const stopReceiving = (tabId: number) => {
 	chrome.tabs.sendMessage(tabId, ContentScriptEvent.StopReceiving);
 };
 
+const reconnect = (tabId: number) => {
+	chrome.tabs.sendMessage(tabId, ContentScriptEvent.Reconnect);
+};
+
 export const contentScriptActions = {
 	startSharing,
 	startReceiving,
 	changeTab,
 	stopSharing,
 	stopReceiving,
+	reconnect,
 };
