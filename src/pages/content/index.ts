@@ -3,7 +3,7 @@ import { backgroundScriptActions } from "../background/actions";
 import { ServerMessage, ServerMessageEvent } from "../serverMessage";
 import { updateCurrentTimeInVideo, setExactTimeInVideo, isPathSame } from "./receiver";
 import { playVideo, pauseVideo, changePlaybackRate } from "./receiver";
-import { stripIndex } from "./utils";
+import { getPlayingVideo, stripIndex, waitForPlayingVideo } from "./utils";
 import { popupPageActions } from "../popup/actions";
 import { clearData, getData, setData } from "../storage";
 import { startSharing, stopSharing } from "./share";
@@ -20,6 +20,13 @@ let reconnectTry = 0;
 const maxReconnectTries = 5;
 let reconnectTimeout: NodeJS.Timeout = null;
 
+const cancelAutoplay = () => {
+	const autoplayCancelButton: HTMLButtonElement = document.querySelector(
+		".ytp-autonav-endscreen-upnext-cancel-button"
+	);
+	autoplayCancelButton?.click();
+};
+
 const startSse = async () => {
 	const data = await getData();
 	if (!isReconnecting) {
@@ -29,6 +36,11 @@ const startSse = async () => {
 	sse = new EventSource(BACKEND_URL + "/room/" + data.joinCode);
 	sse.addEventListener("open", () => {
 		connectionStateManager.setConnectionState("connected");
+		const addEventOnVideoElement = async () => {
+			const video = await waitForPlayingVideo();
+			video.addEventListener("ended", cancelAutoplay);
+		};
+		addEventOnVideoElement();
 		isReconnecting = false;
 		reconnectTry = 0;
 	});
@@ -94,6 +106,8 @@ const startSse = async () => {
 		sse.close();
 		isReconnecting = true;
 		reconnectTry++;
+		const video = getPlayingVideo();
+		video?.removeEventListener("ended", cancelAutoplay);
 		connectionStateManager.setConnectionState("reconnecting");
 		if (reconnectTry > maxReconnectTries) {
 			connectionStateManager.setConnectionState("disconnected");
@@ -166,6 +180,8 @@ chrome.runtime.onMessage.addListener(async (message: ContentScriptEvent) => {
 		sse = null;
 		isReconnecting = false;
 		reconnectTry = 0;
+		const video = getPlayingVideo();
+		video?.removeEventListener("ended", cancelAutoplay);
 		clearTimeout(reconnectTimeout);
 		connectionStateElement.unmount();
 		return;
