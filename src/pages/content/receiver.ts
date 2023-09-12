@@ -1,4 +1,4 @@
-import { getPlayingVideo, getYoutubePath, stripIndex } from "./utils";
+import { getPlayingVideo, getYoutubePath, stripPath } from "./utils";
 
 export const playVideo = async () => {
 	const video = getPlayingVideo();
@@ -32,5 +32,5 @@ export const updateCurrentTimeInVideo = (newTime: number) => {
 };
 
 export const isPathSame = (strippedPath: string) => {
-	return stripIndex(getYoutubePath(location.href)) === strippedPath;
+	return stripPath(getYoutubePath(location.href)) === strippedPath;
 };
