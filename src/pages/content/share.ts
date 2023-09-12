@@ -43,10 +43,11 @@ const setupListenersOnVideo = () => {
 		rate: video.playbackRate,
 	});
 	intervalId = setInterval(() => {
+		const isLoaded = video.readyState >= 3;
 		sendMessage({
 			type: ServerMessageEvent.Sync,
 			time: video.currentTime,
-			isPaused: video.paused,
+			isPaused: isLoaded ? video.paused : true,
 			path: getYoutubePath(location.href),
 			rate: video.playbackRate,
 		});
