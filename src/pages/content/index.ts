@@ -95,7 +95,7 @@ const startSse = async () => {
 		}
 		if (msg.type === ServerMessageEvent.Close) {
 			clearData();
-			connectionStateElement.unmount();
+			connectionStateElement.setConnectionState("roomClosed");
 			popupPageActions.sendUpdateConnectionState(null);
 			sse?.close();
 			sse = null;

@@ -3,4 +3,5 @@ export type ConnectionState =
 	| "connected"
 	| "reconnecting"
 	| "disconnected"
-	| "hostDisconnected";
+	| "hostDisconnected"
+	| "roomClosed";

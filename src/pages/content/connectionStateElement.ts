@@ -1,26 +1,48 @@
 import { ConnectionState } from "../connectionState";
 
 export class ConnectionStateElement {
-	private element: HTMLParagraphElement;
+	private container: HTMLDivElement;
+	private textElement: HTMLParagraphElement;
+	private closeButton: HTMLButtonElement;
 	private isMounted = false;
 
 	constructor() {
-		this.element = document.createElement("p");
-		this.element.style.position = "fixed";
-		this.element.style.bottom = "0px";
-		this.element.style.left = "50%";
-		this.element.style.transform = "translateX(-50%)";
-		this.element.style.fontSize = "18px";
-		this.element.style.borderInline = "1px";
-		this.element.style.borderTop = "1px";
-		this.element.style.borderColor = "black";
-		this.element.style.borderStyle = "solid";
-		this.element.style.padding = "10px";
-		this.element.style.background = "rgba(255, 255, 255, 0.8)";
+		const isDarkMode = document.documentElement.hasAttribute("dark");
+		this.container = document.createElement("div");
+		this.container.style.position = "fixed";
+		this.container.style.bottom = "0px";
+		this.container.style.left = "50%";
+		this.container.style.transform = "translateX(-50%)";
+		this.container.style.fontSize = "1.4rem";
+		this.container.style.padding = "10px";
+		this.container.style.background = isDarkMode ? "rgb(37, 37, 37)" : "rgb(242, 242, 242);";
+		this.container.style.border = "2px solid rgb(30, 30, 30)";
+		this.container.style.borderColor = isDarkMode ? "rgb(30, 30, 30)" : "rgb(250, 250, 250)";
+		this.container.style.borderBottomWidth = "0px";
+		this.container.style.color = isDarkMode ? "rgb(255, 255, 255)" : "rgb(0, 0, 0)";
+		this.container.style.borderRadius = "12px 12px 0 0";
+		this.container.style.display = "flex";
+		this.container.style.alignItems = "center";
+		this.container.style.gap = "10px";
+		this.textElement = document.createElement("p");
+		this.closeButton = document.createElement("button");
+		this.closeButton.textContent = "x";
+		this.closeButton.style.border = "1px solid rgb(255, 255, 255)";
+		this.closeButton.style.borderColor = isDarkMode ? "rgb(255, 255, 255)" : "rgb(0, 0, 0)";
+		this.closeButton.style.borderRadius = "50%";
+		this.closeButton.style.lineHeight = "normal";
+		this.closeButton.style.color = "inherit";
+		this.closeButton.style.font = "inherit";
+		this.closeButton.style.fontSize = "1.2rem";
+		this.closeButton.style.background = "transparent";
+		this.closeButton.style.cursor = "pointer";
+		this.closeButton.addEventListener("click", () => this.unmount());
+		this.container.appendChild(this.textElement);
+		this.container.appendChild(this.closeButton);
 	}
 
 	private updateText(newText: string) {
-		this.element.textContent = newText;
+		this.textElement.textContent = newText;
 	}
 
 	setConnectionState(state: ConnectionState) {
@@ -44,16 +66,20 @@ export class ConnectionStateElement {
 			this.updateText("Host disconnected");
 			return;
 		}
+		if (state === "roomClosed") {
+			this.updateText("Session ended");
+			return;
+		}
 	}
 
 	mount() {
 		if (this.isMounted) return;
 		this.isMounted = true;
-		document.body.appendChild(this.element);
+		document.body.appendChild(this.container);
 	}
 	unmount() {
 		if (!this.isMounted) return;
 		this.isMounted = false;
-		document.body.removeChild(this.element);
+		document.body.removeChild(this.container);
 	}
 }
