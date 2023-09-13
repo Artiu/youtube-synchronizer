@@ -1,7 +1,7 @@
 {
     "name": "youtube-synchronizer",
     "displayName": "YouTube Synchronizer DEV",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "description": "Extension for YouTube synchronization between different devices in realtime.",
     "scripts": {
         "dev": "vite build -w --mode development",
