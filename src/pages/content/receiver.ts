@@ -1,4 +1,4 @@
-import { getPlayingVideo, getYoutubePath, stripPath } from "./utils";
+import { getPlayingVideo } from "./utils";
 
 export const playVideo = async () => {
 	const video = getPlayingVideo();
@@ -31,6 +31,19 @@ export const updateCurrentTimeInVideo = (newTime: number) => {
 	video.currentTime = newTime;
 };
 
-export const isPathSame = (strippedPath: string) => {
-	return stripPath(getYoutubePath(location.href)) === strippedPath;
+export const isPathSame = (fullNewPath: string) => {
+	const currentPath = location.pathname;
+	const currentSearchParams = new URLSearchParams(location.search);
+	const [newPath, newSearchParamsString] = fullNewPath.split("?");
+	const newSearchParams = new URLSearchParams(newSearchParamsString);
+
+	const isPathSame = newPath === currentPath;
+	const isSearchParamSame = (name: string) => {
+		return currentSearchParams.get(name) === newSearchParams.get(name);
+	};
+	const isVideoIdParamSame = isSearchParamSame("v");
+	const isListIdParamSame = isSearchParamSame("list");
+	const isSearchQueryParamsSame = isSearchParamSame("search_query");
+
+	return isPathSame && isVideoIdParamSame && isListIdParamSame && isSearchQueryParamsSame;
 };

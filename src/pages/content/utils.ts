@@ -29,10 +29,3 @@ export const waitForPlayingVideo = () => {
 export const getYoutubePath = (url: string) => {
 	return url.split("youtube.com")[1];
 };
-
-export const stripPath = (fullYtPath: string) => {
-	return fullYtPath
-		.replace(/\&index=\d{1,}/, "")
-		.replace(/\&rv=[^&]+/, "")
-		.replace(/\&t=[^&]+/, "");
-};

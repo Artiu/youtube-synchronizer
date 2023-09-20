@@ -3,7 +3,7 @@ import { backgroundScriptActions } from "../background/actions";
 import { ServerMessage, ServerMessageEvent } from "../serverMessage";
 import { updateCurrentTimeInVideo, setExactTimeInVideo, isPathSame } from "./receiver";
 import { playVideo, pauseVideo, changePlaybackRate } from "./receiver";
-import { getPlayingVideo, isAdPlaying, stripPath, waitForPlayingVideo } from "./utils";
+import { getPlayingVideo, isAdPlaying, waitForPlayingVideo } from "./utils";
 import { popupPageActions } from "../popup/actions";
 import { clearData, getData, setData } from "../storage";
 import { startSharing, stopSharing } from "./share";
@@ -54,9 +54,8 @@ const startSse = async () => {
 			return;
 		}
 		if (msg.type === ServerMessageEvent.Sync) {
-			const path = stripPath(msg.path);
-			if (!isPathSame(path)) {
-				backgroundScriptActions.changePath(path);
+			if (!isPathSame(msg.path)) {
+				backgroundScriptActions.changePath(msg.path);
 			}
 			if (msg.isPaused) {
 				pauseVideo();
