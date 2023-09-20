@@ -4,6 +4,10 @@ export const getPlayingVideo = () => {
 	)[0] as HTMLVideoElement;
 };
 
+export const isAdPlaying = () => {
+	return !!document.querySelector("div.ad-showing");
+};
+
 export const waitForPlayingVideo = () => {
 	return new Promise((resolve: (value: HTMLVideoElement) => void) => {
 		const observer = new MutationObserver(() => {

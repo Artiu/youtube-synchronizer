@@ -1,5 +1,5 @@
 import { ServerMessage, ServerMessageEvent } from "../serverMessage";
-import { getYoutubePath, waitForPlayingVideo } from "./utils";
+import { getYoutubePath, isAdPlaying, waitForPlayingVideo } from "./utils";
 
 let websocket: WebSocket;
 let video: HTMLVideoElement;
@@ -12,6 +12,7 @@ const sendMessage = (message: ServerMessage) => {
 };
 
 const pauseEvent = () => {
+	if (isAdPlaying()) return;
 	sendMessage({
 		type: ServerMessageEvent.Pause,
 		time: video.currentTime,
@@ -19,10 +20,12 @@ const pauseEvent = () => {
 };
 
 const playingEvent = () => {
+	if (isAdPlaying()) return;
 	sendMessage({ type: ServerMessageEvent.StartPlaying, time: video.currentTime });
 };
 
 const rateChangeEvent = () => {
+	if (isAdPlaying()) return;
 	sendMessage({ type: ServerMessageEvent.RateChange, rate: video.playbackRate });
 };
 
@@ -35,14 +38,17 @@ const setupListenersOnVideo = () => {
 	video.addEventListener("playing", playingEvent);
 	video.addEventListener("ratechange", rateChangeEvent);
 
-	sendMessage({
-		type: ServerMessageEvent.Sync,
-		time: video.currentTime,
-		isPaused: video.paused,
-		path: getYoutubePath(location.href),
-		rate: video.playbackRate,
-	});
-	intervalId = setInterval(() => {
+	const sendSyncMessage = () => {
+		if (isAdPlaying()) {
+			sendMessage({
+				type: ServerMessageEvent.Sync,
+				time: 0.0,
+				isPaused: true,
+				path: getYoutubePath(location.href),
+				rate: video.playbackRate,
+			});
+			return;
+		}
 		const isLoaded = video.readyState >= 3;
 		sendMessage({
 			type: ServerMessageEvent.Sync,
@@ -51,6 +57,10 @@ const setupListenersOnVideo = () => {
 			path: getYoutubePath(location.href),
 			rate: video.playbackRate,
 		});
+	};
+	sendSyncMessage();
+	intervalId = setInterval(() => {
+		sendSyncMessage();
 	}, 3000);
 };
 

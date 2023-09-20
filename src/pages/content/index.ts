@@ -3,7 +3,7 @@ import { backgroundScriptActions } from "../background/actions";
 import { ServerMessage, ServerMessageEvent } from "../serverMessage";
 import { updateCurrentTimeInVideo, setExactTimeInVideo, isPathSame } from "./receiver";
 import { playVideo, pauseVideo, changePlaybackRate } from "./receiver";
-import { getPlayingVideo, stripPath, waitForPlayingVideo } from "./utils";
+import { getPlayingVideo, isAdPlaying, stripPath, waitForPlayingVideo } from "./utils";
 import { popupPageActions } from "../popup/actions";
 import { clearData, getData, setData } from "../storage";
 import { startSharing, stopSharing } from "./share";
@@ -45,6 +45,7 @@ const startSse = async () => {
 		reconnectTry = 0;
 	});
 	sse.addEventListener("message", (e) => {
+		if (isAdPlaying()) return;
 		let msg: ServerMessage;
 		try {
 			msg = JSON.parse(e.data);
