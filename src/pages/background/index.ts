@@ -3,8 +3,26 @@ import { BackgroundScriptEvent, BackgroundScriptMessage } from "./types";
 import { popupPageActions } from "../popup/actions";
 import { contentScriptActions } from "../content/actions";
 import { clearData, clearReconnectKey, getData, setData } from "../storage";
+// @ts-ignore
+import contentScriptPath from "../content/index.ts?script";
 
 chrome.storage.session.setAccessLevel({ accessLevel: "TRUSTED_AND_UNTRUSTED_CONTEXTS" });
+
+chrome.runtime.onInstalled.addListener(async () => {
+	const tabs = await chrome.tabs.query({ url: "https://*.youtube.com/*" });
+	for (const tab of tabs) {
+		if (tab.id) {
+			try {
+				await chrome.scripting.executeScript({
+					target: { tabId: tab.id },
+					files: [contentScriptPath],
+				});
+			} catch (e) {
+				console.log("Could not inject content script into tab", tab.id, e);
+			}
+		}
+	}
+});
 
 chrome.tabs.onRemoved.addListener(async (closedTabId) => {
 	const data = await getData();
@@ -16,13 +34,14 @@ let abortController: AbortController;
 
 chrome.runtime.onMessage.addListener(async (message: BackgroundScriptMessage, sender) => {
 	const data = await getData();
+	console.log("Wiadomość odebrana w background script:", message);
 	switch (message.type) {
 		case BackgroundScriptEvent.StartSharing:
 			await setData({ clientType: "sender", tabId: message.tabId });
 			if (data.tabId) {
-				contentScriptActions.changeTab(data.tabId);
+				contentScriptActions.changeTab(data.tabId).catch(() => {});
 			}
-			contentScriptActions.startSharing(message.tabId);
+			contentScriptActions.startSharing(message.tabId).catch(() => {});
 			break;
 		case BackgroundScriptEvent.StartReceiving:
 			const setupReceiving = async () => {
