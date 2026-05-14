@@ -32,6 +32,9 @@ export default function SessionInfo() {
 						<Match when={connectionState() === "hostDisconnected"}>
 							Host disconnected
 						</Match>
+						<Match when={connectionState() === "roomClosed"}>
+							Session ended
+						</Match>
 					</Switch>
 				</p>
 				<Show when={connectionState() === "disconnected"}>

@@ -24,6 +24,10 @@ chrome.runtime.onMessage.addListener((msg: PopupMessage) => {
 		return;
 	}
 	if (msg.type === PopupPageEvent.UpdateConnectionState) {
+		if(msg.connectionState === "roomClosed") {
+			reset();
+			return;
+		}
 		setConnectionState(msg.connectionState);
 		return;
 	}

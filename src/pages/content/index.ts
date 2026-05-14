@@ -45,7 +45,6 @@ const startSse = async () => {
 		reconnectTry = 0;
 	});
 	sse.addEventListener("message", (e) => {
-		if (isAdPlaying()) return;
 		let msg: ServerMessage;
 		try {
 			msg = JSON.parse(e.data);
@@ -54,6 +53,7 @@ const startSse = async () => {
 			return;
 		}
 		if (msg.type === ServerMessageEvent.Sync) {
+			if (isAdPlaying()) return;
 			if (!isPathSame(msg.path)) {
 				backgroundScriptActions.changePath(msg.path);
 			}
@@ -68,11 +68,13 @@ const startSse = async () => {
 		}
 
 		if (msg.type === ServerMessageEvent.StartPlaying) {
+			if (isAdPlaying()) return;
 			playVideo();
 			setExactTimeInVideo(msg.time);
 			return;
 		}
 		if (msg.type === ServerMessageEvent.Pause) {
+			if (isAdPlaying()) return;
 			pauseVideo();
 			setExactTimeInVideo(msg.time);
 			return;
@@ -96,7 +98,7 @@ const startSse = async () => {
 		if (msg.type === ServerMessageEvent.Close) {
 			clearData();
 			connectionStateElement.setConnectionState("roomClosed");
-			popupPageActions.sendUpdateConnectionState(undefined);
+			popupPageActions.sendUpdateConnectionState("roomClosed");
 			sse?.close();
 			sse = null;
 			return;
