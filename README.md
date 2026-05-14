@@ -1,11 +1,13 @@
 # 📺 YouTube Synchronizer
 
-![Version](https://img.shields.io/badge/version-1.2.4-blue.svg)
+![Version](https://img.shields.io/badge/version-1.3.0-blue.svg)
 ![SolidJS](https://img.shields.io/badge/SolidJS-2C4F7C?logo=solid&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?logo=tailwind-css&logoColor=white)
 
 A browser extension that allows you to watch YouTube videos together with friends in real-time, synchronized across multiple devices.
+
+📥 **[Install from Chrome Web Store](https://chromewebstore.google.com/detail/youtube-synchronizer/kojahdkdppbdkgpdepmekohphlcobjhj)** — *Trusted by almost 1,000 users!*
 
 ## ✨ Features
 
