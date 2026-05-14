@@ -4,7 +4,7 @@
 	"version": "1.2.4",
 	"description": "Extension for YouTube synchronization between different devices in realtime.",
 	"scripts": {
-		"dev": "vite build -w --mode development",
+		"dev": "vite",
 		"build": "vite build",
 		"lint": "eslint . --fix -c .eslintrc --ext js,ts --ignore-pattern='!.*'",
 		"dev:nodemon": "nodemon",

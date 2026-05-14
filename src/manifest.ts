@@ -36,7 +36,7 @@ const manifest = defineManifest(async () => ({
 			matches: ["https://*.youtube.com/*"],
 		},
 	],
-	permissions: ["tabs", "clipboardWrite", "scripting", "storage"],
+	permissions: ["tabs", "clipboardWrite", "clipboardRead", "scripting", "storage"],
 	host_permissions: ["https://*.youtube.com/*"],
 }));
 

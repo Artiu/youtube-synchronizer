@@ -1,5 +1,4 @@
 {
-	//Migrate to v7
 	"compilerOptions": {
 		"noEmit": true,
 		"allowJs": false,

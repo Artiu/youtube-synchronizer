@@ -1,6 +1,7 @@
 import { For } from "solid-js";
 
 type CodeInputProps = {
+	code: string;
 	codeLength: number;
 	locked: boolean;
 	updateCode: (newCode: string) => void;
@@ -42,17 +43,17 @@ export default function CodeInput(props: CodeInputProps) {
 		}
 	};
 
-	const changeText = (newText: string) => {
-		inputs.forEach((input, index) => {
-			input.value = newText[index] || "";
-		});
-		props.updateCode(getCode());
+	const onKeyDown = (index: number) => (e: KeyboardEvent) => {
+		if (e.key === "Backspace" && inputs[index].value === "") {
+			e.preventDefault();
+			focusInput(index - 1);
+		}
 	};
 
 	const onPaste = (e: ClipboardEvent) => {
 		e.preventDefault();
 		const content = e.clipboardData?.getData("Text") || "";
-		changeText(content);
+		props.updateCode(content);
 	};
 
 	return (
@@ -62,9 +63,11 @@ export default function CodeInput(props: CodeInputProps) {
 					<input
 						class="input input-bordered w-8 text-center p-0"
 						disabled={props.locked}
+						value={props.code[index()] || ""}
 						ref={(el) => inputs.push(el)}
 						onBeforeInput={onBeforeInput(index())}
 						onInput={onInput(index())}
+						onKeyDown={onKeyDown(index())}
 						onPaste={onPaste}
 						autofocus={index() === 0}
 					/>

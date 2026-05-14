@@ -1,5 +1,5 @@
 import { Match, Show, Switch, createSignal, onCleanup } from "solid-js";
-import { connectionState, joinCode, tabId } from "../store";
+import { connectionState, joinCode, tabId, clientType } from "../store";
 import { contentScriptActions } from "@src/pages/content/actions";
 
 export default function SessionInfo() {
@@ -23,7 +23,9 @@ export default function SessionInfo() {
 			<div class="text-center">
 				<p class="text-lg">
 					<Switch>
-						<Match when={connectionState() === "connected"}>Connected</Match>
+						<Match when={connectionState() === "connected"}>
+							Connected as <span class="font-bold">{clientType() === "sender" ? "HOST" : "RECEIVER"}</span>
+						</Match>
 						<Match when={connectionState() === "connecting"}>Connecting...</Match>
 						<Match when={connectionState() === "reconnecting"}>Reconnecting...</Match>
 						<Match when={connectionState() === "disconnected"}>Disconnected</Match>
