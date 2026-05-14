@@ -10,13 +10,13 @@ A browser extension that allows you to watch YouTube videos together with friend
 ## ✨ Features
 
 - **Real-time Synchronization:** Play, pause, and seek videos perfectly synced across all connected devices.
-- **Easy Room System:** One person creates a session (Sender) and shares a simple 6-digit code with others (Receivers).
+- **Easy Room System:** One person creates a session (Host) and shares a simple 6-digit code with others (Receivers).
 - **Fast & Lightweight:** Built with SolidJS and Vite for blazing-fast performance.
 - **Modern UI:** Clean and intuitive interface powered by Tailwind CSS and DaisyUI.
 
 ## 🚀 How It Works
 
-1. **Host a Session (Sender):** 
+1. **Host a Session (Host):** 
    - Open a YouTube video you want to watch.
    - Click the extension icon and select "Start Sharing".
    - You will receive a unique 6-digit room code.
@@ -47,7 +47,7 @@ If you want to build the extension locally:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/youtube-synchronizer.git
+   git clone https://github.com/artiu/youtube-synchronizer.git
    cd youtube-synchronizer
    ```
 
