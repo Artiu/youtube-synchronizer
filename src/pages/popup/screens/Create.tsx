@@ -24,7 +24,7 @@ export default function CreateScreen() {
 						<>
 							<p class="text-[14px]">{item.title}</p>
 							<button
-								onClick={startSharing(item.id)}
+								onClick={startSharing(item.id as number)}
 								class="btn btn-sm btn-primary"
 								classList={{
 									"btn-disabled": tabId() === item.id,

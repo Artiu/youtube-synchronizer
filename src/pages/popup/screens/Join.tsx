@@ -5,7 +5,7 @@ import { PopupMessage, PopupPageEvent } from "../types";
 
 export default function JoinScreen() {
 	const [isLoading, setIsLoading] = createSignal(false);
-	const [error, setError] = createSignal(null);
+	const [error, setError] = createSignal<string | null>(null);
 	let code = "";
 	const codeLength = 6;
 	let isFirstTry = true;

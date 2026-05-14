@@ -7,7 +7,7 @@ export default function SessionInfo() {
 	let reconnectTimeout: NodeJS.Timeout;
 	const reconnect = () => {
 		setCanReconnect(false);
-		contentScriptActions.reconnect(tabId());
+		contentScriptActions.reconnect(tabId() as number);
 		reconnectTimeout = setTimeout(() => setCanReconnect(true), 1000);
 	};
 	onCleanup(() => {
@@ -15,7 +15,7 @@ export default function SessionInfo() {
 	});
 
 	const copyCode = async () => {
-		await navigator.clipboard.writeText(joinCode());
+		await navigator.clipboard.writeText(joinCode() as string);
 	};
 
 	return (

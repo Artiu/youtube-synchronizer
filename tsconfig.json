@@ -1,9 +1,7 @@
 {
 	//Migrate to v7
 	"compilerOptions": {
-		"ignoreDeprecations": "6.0",
 		"noEmit": true,
-		"baseUrl": ".",
 		"allowJs": false,
 		"target": "esnext",
 		"module": "esnext",
@@ -12,16 +10,16 @@
 		"skipLibCheck": true,
 		"esModuleInterop": true,
 		"resolveJsonModule": true,
-		"moduleResolution": "node",
+		"moduleResolution": "bundler",
 		"types": ["vite/client", "node"],
 		"noFallthroughCasesInSwitch": true,
 		"allowSyntheticDefaultImports": true,
 		"lib": ["dom", "dom.iterable", "esnext"],
 		"forceConsistentCasingInFileNames": true,
 		"paths": {
-			"@src/*": ["src/*"],
-			"@assets/*": ["src/assets/*"],
-			"@pages/*": ["src/pages/*"]
+			"@src/*": ["./src/*"],
+			"@assets/*": ["./src/assets/*"],
+			"@pages/*": ["./src/pages/*"]
 		}
 	},
 	"include": ["src", "utils", "vite.config.ts", "node_modules/@types", "src/manifest.ts"]

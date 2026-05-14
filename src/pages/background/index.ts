@@ -30,18 +30,17 @@ chrome.tabs.onRemoved.addListener(async (closedTabId) => {
 	clearData();
 });
 
-let abortController: AbortController;
+let abortController: AbortController | null = null;
 
 chrome.runtime.onMessage.addListener(async (message: BackgroundScriptMessage, sender) => {
 	const data = await getData();
-	console.log("Wiadomość odebrana w background script:", message);
 	switch (message.type) {
 		case BackgroundScriptEvent.StartSharing:
 			await setData({ clientType: "sender", tabId: message.tabId });
 			if (data.tabId) {
-				contentScriptActions.changeTab(data.tabId).catch(() => {});
+				contentScriptActions.changeTab(data.tabId);
 			}
-			contentScriptActions.startSharing(message.tabId).catch(() => {});
+			contentScriptActions.startSharing(message.tabId);
 			break;
 		case BackgroundScriptEvent.StartReceiving:
 			const setupReceiving = async () => {
@@ -86,7 +85,7 @@ chrome.runtime.onMessage.addListener(async (message: BackgroundScriptMessage, se
 			setupReceiving();
 			break;
 		case BackgroundScriptEvent.TabReady:
-			if (sender.tab?.id !== data.tabId) break;
+			if (!sender.tab?.id || sender.tab.id !== data.tabId) break;
 			if (data.clientType === "sender") {
 				contentScriptActions.startSharing(data.tabId);
 			}
@@ -95,6 +94,7 @@ chrome.runtime.onMessage.addListener(async (message: BackgroundScriptMessage, se
 			}
 			break;
 		case BackgroundScriptEvent.PathChange:
+			if (!sender.tab?.id) break;
 			chrome.scripting.executeScript({
 				world: "MAIN",
 				target: { tabId: sender.tab.id },
@@ -120,10 +120,10 @@ chrome.runtime.onMessage.addListener(async (message: BackgroundScriptMessage, se
 			}
 			clearReconnectKey();
 			clearData();
-			if (data.clientType === "receiver") {
+			if (data.clientType === "receiver" && data.tabId !== undefined) {
 				contentScriptActions.stopReceiving(data.tabId);
 			}
-			if (data.clientType === "sender") {
+			if (data.clientType === "sender" && data.tabId !== undefined) {
 				contentScriptActions.stopSharing(data.tabId);
 			}
 			break;

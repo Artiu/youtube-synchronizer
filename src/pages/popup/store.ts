@@ -5,16 +5,16 @@ import { ClientType } from "../background/types";
 import { getData } from "../storage";
 import { ConnectionState } from "../connectionState";
 
-const [tabId, setTabId] = createSignal<number>(null);
-const [joinCode, setJoinCode] = createSignal<string>(null);
+const [tabId, setTabId] = createSignal<number | undefined>(undefined);
+const [joinCode, setJoinCode] = createSignal<string | undefined>(undefined);
 const [clientType, setClientType] = createSignal<ClientType>("receiver");
-const [connectionState, setConnectionState] = createSignal<ConnectionState>(null);
+const [connectionState, setConnectionState] = createSignal<ConnectionState | undefined>(undefined);
 const [isLocked, setIsLocked] = createSignal(false);
 
 const reset = () => {
-	setConnectionState(null);
-	setTabId(null);
-	setJoinCode(null);
+	setConnectionState(undefined);
+	setTabId(undefined);
+	setJoinCode(undefined);
 	setIsLocked(false);
 };
 

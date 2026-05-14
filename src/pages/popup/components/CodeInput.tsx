@@ -51,7 +51,7 @@ export default function CodeInput(props: CodeInputProps) {
 
 	const onPaste = (e: ClipboardEvent) => {
 		e.preventDefault();
-		const content = e.clipboardData.getData("Text");
+		const content = e.clipboardData?.getData("Text") || "";
 		changeText(content);
 	};
 

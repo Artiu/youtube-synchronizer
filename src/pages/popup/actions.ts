@@ -5,7 +5,7 @@ const sendMessageToPopupPage = (message: PopupMessage) => {
 	return chrome.runtime.sendMessage(message);
 };
 
-const sendUpdateConnectionState = (connectionState: ConnectionState) => {
+const sendUpdateConnectionState = (connectionState: ConnectionState | undefined) => {
 	sendMessageToPopupPage({ type: PopupPageEvent.UpdateConnectionState, connectionState });
 };
 

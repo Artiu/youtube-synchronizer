@@ -1,6 +1,6 @@
 export const getPlayingVideo = () => {
-	return [...document.querySelectorAll(".video-stream")].filter(
-		(el: HTMLVideoElement) => el.src
+	return [...document.querySelectorAll<HTMLVideoElement>(".video-stream")].filter(
+		(el) => el.src
 	)[0] as HTMLVideoElement;
 };
 

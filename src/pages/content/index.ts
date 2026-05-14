@@ -11,17 +11,17 @@ import { ContentScriptEvent } from "./types";
 import { ConnectionStateElement } from "./connectionStateElement";
 import { ConnectionStateManager } from "./connectionStateManager";
 
-let sse: EventSource = null;
-let ws: WebSocket = null;
+let sse: EventSource | null = null;
+let ws: WebSocket | null = null;
 const connectionStateElement = new ConnectionStateElement();
 const connectionStateManager = new ConnectionStateManager(connectionStateElement);
 let isReconnecting = false;
 let reconnectTry = 0;
 const maxReconnectTries = 5;
-let reconnectTimeout: NodeJS.Timeout = null;
+let reconnectTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
 
 const cancelAutoplay = () => {
-	const autoplayCancelButton: HTMLButtonElement = document.querySelector(
+	const autoplayCancelButton = document.querySelector<HTMLButtonElement>(
 		".ytp-autonav-endscreen-upnext-cancel-button"
 	);
 	autoplayCancelButton?.click();
@@ -96,14 +96,14 @@ const startSse = async () => {
 		if (msg.type === ServerMessageEvent.Close) {
 			clearData();
 			connectionStateElement.setConnectionState("roomClosed");
-			popupPageActions.sendUpdateConnectionState(null);
+			popupPageActions.sendUpdateConnectionState(undefined);
 			sse?.close();
 			sse = null;
 			return;
 		}
 	});
-	sse.addEventListener("error", () => {
-		sse.close();
+	sse?.addEventListener("error", () => {
+		sse?.close();
 		isReconnecting = true;
 		reconnectTry++;
 		const video = getPlayingVideo();
@@ -130,7 +130,9 @@ const startWebsocket = async () => {
 		connectionStateManager.setConnectionState("connected");
 		isReconnecting = false;
 		reconnectTry = 0;
-		startSharing(ws);
+		if (ws) {
+			startSharing(ws);
+		}
 	});
 	ws.addEventListener("message", async (msg) => {
 		const message = JSON.parse(msg.data);
